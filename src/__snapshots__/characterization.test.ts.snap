@@ -1,0 +1,271 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`characterization: preset output is byte-stable > py-cli matches its snapshot 1`] = `
+{
+  ".gitignore": "__pycache__/
+*.py[cod]
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+",
+  ".python-version": "3.11
+",
+  "LICENSE": "MIT License
+
+Copyright (c) Fixture Author
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+",
+  "README.md": "# fixture
+
+> A fixture project.
+
+## Develop
+
+\`\`\`sh
+uv sync --all-extras        # or: pip install -e ".[dev]"
+uv run pytest
+uv run ruff check .
+uv run mypy
+\`\`\`
+
+## Run
+
+\`\`\`sh
+uv run fixture world
+\`\`\`
+",
+  "packkit.json": "{
+  "$schema": "https://packkitjs.github.io/create-packkit-py/packkit.schema.json",
+  "generator": "create-packkit-py",
+  "preset": "py-cli",
+  "settings": {
+    "description": "A fixture project.",
+    "author": "Fixture Author <fixture@example.com>",
+    "target": "cli"
+  }
+}
+",
+  "pyproject.toml": "[project]
+name = "fixture"
+version = "0.1.0"
+description = "A fixture project."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Fixture Author", email = "fixture@example.com" }]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11"]
+
+[project.scripts]
+fixture = "fixture.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fixture"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src", "tests"]
+",
+  "src/fixture/__init__.py": """"A fixture project."""
+
+__version__ = "0.1.0"
+
+
+def greet(name: str) -> str:
+    """Return a friendly greeting."""
+    return f"Hello, {name}!"
+",
+  "src/fixture/__main__.py": """"Command-line entry point for fixture."""
+
+import argparse
+
+from fixture import greet
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(prog="fixture", description="A fixture project.")
+    parser.add_argument("name", nargs="?", default="world", help="who to greet")
+    args = parser.parse_args()
+    print(greet(args.name))
+
+
+if __name__ == "__main__":
+    main()
+",
+  "src/fixture/py.typed": "",
+  "tests/test_fixture.py": "import sys
+
+import pytest
+
+from fixture import greet
+from fixture.__main__ import main
+
+
+def test_greet() -> None:
+    assert greet("world") == "Hello, world!"
+
+
+def test_main_greets(capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(sys, "argv", ["fixture", "there"])
+    main()
+    assert "Hello, there!" in capsys.readouterr().out
+",
+}
+`;
+
+exports[`characterization: preset output is byte-stable > py-lib matches its snapshot 1`] = `
+{
+  ".gitignore": "__pycache__/
+*.py[cod]
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+",
+  ".python-version": "3.11
+",
+  "LICENSE": "MIT License
+
+Copyright (c) Fixture Author
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+",
+  "README.md": "# fixture
+
+> A fixture project.
+
+## Develop
+
+\`\`\`sh
+uv sync --all-extras        # or: pip install -e ".[dev]"
+uv run pytest
+uv run ruff check .
+uv run mypy
+\`\`\`
+",
+  "packkit.json": "{
+  "$schema": "https://packkitjs.github.io/create-packkit-py/packkit.schema.json",
+  "generator": "create-packkit-py",
+  "preset": "py-lib",
+  "settings": {
+    "description": "A fixture project.",
+    "author": "Fixture Author <fixture@example.com>"
+  }
+}
+",
+  "pyproject.toml": "[project]
+name = "fixture"
+version = "0.1.0"
+description = "A fixture project."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Fixture Author", email = "fixture@example.com" }]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fixture"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src", "tests"]
+",
+  "src/fixture/__init__.py": """"A fixture project."""
+
+__version__ = "0.1.0"
+
+
+def greet(name: str) -> str:
+    """Return a friendly greeting."""
+    return f"Hello, {name}!"
+",
+  "src/fixture/py.typed": "",
+  "tests/test_fixture.py": "from fixture import greet
+
+
+def test_greet() -> None:
+    assert greet("world") == "Hello, world!"
+",
+}
+`;
