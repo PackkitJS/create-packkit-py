@@ -1,6 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
 import { PACKKIT_PROTOCOL_VERSION } from '@packkit/core';
 import type {
 	GeneratedProject,
@@ -17,19 +14,12 @@ import { pyprojectDiffer } from './manifest-differ.js';
 import { upgradeProject, type UpgradeInput } from './upgrade.js';
 import type { PyConfigInput } from './types.js';
 
-function selfVersion(): string {
-	try {
-		return (
-			JSON.parse(
-				readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'package.json'), 'utf8'),
-			).version ?? '0.0.0'
-		);
-	} catch {
-		return '0.0.0';
-	}
-}
-
-const VERSION = selfVersion();
+// Injected at build time by tsup/vitest `define` (see tsup.config.ts). Read from a
+// constant, never package.json at runtime, so the generator stays browser-safe
+// (no node:fs) and can be bundled into packkit-web. The typeof guard keeps it from
+// throwing if some tool bundles this without defining the constant.
+declare const __PACKKIT_PY_VERSION__: string;
+const VERSION = typeof __PACKKIT_PY_VERSION__ === 'string' ? __PACKKIT_PY_VERSION__ : '0.0.0';
 
 // create-packkit-py implemented as a @packkit/core PackkitGenerator. Since generate()
 // already returns protocol-native output (metadata + deployment contract), the base

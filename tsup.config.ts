@@ -1,4 +1,10 @@
+import { readFileSync } from 'node:fs';
 import { defineConfig } from 'tsup';
+
+// The published version, injected at build time so the generator can report it
+// WITHOUT reading package.json at runtime (node:fs) — that would make the package
+// impossible to bundle for the browser (packkit-web). See __PACKKIT_PY_VERSION__.
+const { version } = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
 
 export default defineConfig({
 	entry: ['src/index.ts', 'src/cli.ts'],
@@ -7,4 +13,5 @@ export default defineConfig({
 	sourcemap: true,
 	clean: true,
 	treeshake: true,
+	define: { __PACKKIT_PY_VERSION__: JSON.stringify(version) },
 });
