@@ -1,5 +1,11 @@
 # create-packkit-py
 
+## 1.0.2
+
+### Patch Changes
+
+- 1380331: Add a template-dependency freshness check (`check:freshness` — compares the PyPI deps the generator emits to the latest published) wired to the shared `dependency-freshness@v1` weekly workflow, and bring the emitted dev-tool floors current: `pytest>=9` and `mypy>=2` (verified by integration on real uv/pytest/mypy).
+
 ## 1.0.1
 
 ### Patch Changes
