@@ -2,6 +2,8 @@
 // idiomatic Python project (pyproject.toml, uv, ruff, pytest, src/ layout).
 // Packkit's engine pattern; the emitted project is pure Python.
 
+import type { Diagnostic, GeneratedProjectMetadata, DeploymentContract } from '@packkit/core';
+
 export type PyTarget = 'library' | 'cli';
 export type PyLicense = 'MIT' | 'none';
 
@@ -21,10 +23,15 @@ export interface PyConfig {
 
 export type PyConfigInput = Partial<PyConfig> & { name?: string };
 
+// A generated Python project — a @packkit/core GeneratedProject (protocol-native
+// metadata + deployment contract) plus a Python-specific `summary`.
 export interface GeneratedPyProject {
 	config: PyConfig;
 	/** path → file contents. Deterministic: same config → same bytes. */
 	files: Record<string, string>;
+	diagnostics: Diagnostic[];
+	metadata: GeneratedProjectMetadata;
+	deploymentContract: DeploymentContract;
 	summary: {
 		distributionName: string;
 		/** Importable module name (hyphens → underscores). */
