@@ -1,6 +1,6 @@
 {
 	"name": "create-packkit-py",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Scaffold modern Python projects — pyproject/uv, ruff, pytest, src layout — from a CLI or the browser. Packkit's Python sibling.",
 	"homepage": "https://github.com/PackkitJS/create-packkit-py#readme",
 	"bugs": {
