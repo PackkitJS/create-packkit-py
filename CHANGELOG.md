@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **End-to-end integration tests** (`scripts/integration.mjs`, `test:integration`
+  script): scaffold each preset with the real built CLI, then `uv sync` and run the
+  generated project's own tooling (pytest, ruff, mypy) — and, for `py-cli`, execute
+  the console script. Runs in CI via the shared `generator-integration@v1` workflow
+  (with `setup-uv`). This is the reference implementation of the org's
+  `test:integration` contract.
+- **Security workflow** — weekly + per-PR `npm audit` gate via the shared
+  `security@v1` workflow.
+
 ### Changed
 
 - CI now runs via the shared `PackkitJS/packkit-actions` reusable workflow
