@@ -82,7 +82,7 @@ uv run fixture world
         "hash": "00a66008afc525"
       },
       "pyproject.toml": {
-        "hash": "1758e4a2825f5b"
+        "hash": "1556f954087d82"
       },
       "src/fixture/__init__.py": {
         "hash": "08fe17034d8b8b"
@@ -100,9 +100,9 @@ uv run fixture world
     "pyproject": {
       "dependencies": [],
       "devDependencies": [
-        "pytest>=8",
+        "pytest>=9",
         "ruff>=0.6",
-        "mypy>=1.11"
+        "mypy>=2"
       ],
       "scripts": {
         "fixture": "fixture.__main__:main"
@@ -123,7 +123,7 @@ authors = [{ name = "Fixture Author", email = "fixture@example.com" }]
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11"]
+dev = ["pytest>=9", "ruff>=0.6", "mypy>=2"]
 
 [project.scripts]
 fixture = "fixture.__main__:main"
@@ -273,7 +273,7 @@ uv run mypy
         "hash": "00be63e7c17da2"
       },
       "pyproject.toml": {
-        "hash": "0012b9dca53ffb"
+        "hash": "160a1638937801"
       },
       "src/fixture/__init__.py": {
         "hash": "08fe17034d8b8b"
@@ -288,9 +288,9 @@ uv run mypy
     "pyproject": {
       "dependencies": [],
       "devDependencies": [
-        "pytest>=8",
+        "pytest>=9",
         "ruff>=0.6",
-        "mypy>=1.11"
+        "mypy>=2"
       ],
       "scripts": {},
       "requiresPython": ">=3.11"
@@ -309,7 +309,7 @@ authors = [{ name = "Fixture Author", email = "fixture@example.com" }]
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11"]
+dev = ["pytest>=9", "ruff>=0.6", "mypy>=2"]
 
 [build-system]
 requires = ["hatchling"]
