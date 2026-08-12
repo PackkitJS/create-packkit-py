@@ -7,6 +7,7 @@ import type {
 	GeneratorSchema,
 	PackkitGenerator,
 	PresetDescriptor,
+	ProjectDefinition,
 } from '@packkit/core';
 import { GENERATOR_ID, PROVENANCE_SCHEMA_VERSION } from './constants.js';
 import { PRESETS, PRESET_INFO, PRESET_NAMES, resolvePreset } from './presets.js';
@@ -38,7 +39,7 @@ export const pythonGenerator: PackkitGenerator = {
 	maturity: 'preview',
 	protocol: {
 		version: PACKKIT_PROTOCOL_VERSION,
-		capabilities: ['generate', 'deployment-contract'],
+		capabilities: ['generate', 'deployment-contract', 'project-definition'],
 	},
 
 	listPresets(): PresetDescriptor[] {
@@ -76,6 +77,26 @@ export const pythonGenerator: PackkitGenerator = {
 		const project = generate(pyInput, { preset: canonical, version: VERSION });
 		// GeneratedPyProject IS a core GeneratedProject; only widen the strict PyConfig
 		// to the contract's Record<string, unknown> (every other field is checked).
+		return { ...project, config: project.config as unknown as Record<string, unknown> };
+	},
+
+	// A definition is just the resolved config + preset; replaying it re-runs
+	// generate(), which is deterministic, so the output round-trips exactly.
+	exportDefinition(project): ProjectDefinition {
+		return {
+			schemaVersion: PROVENANCE_SCHEMA_VERSION,
+			protocolVersion: PACKKIT_PROTOCOL_VERSION,
+			generator: { id: GENERATOR_ID, version: VERSION },
+			preset: project.metadata.preset,
+			config: project.config,
+		};
+	},
+
+	createProjectFromDefinition(definition): GeneratedProject {
+		const project = generate(definition.config as PyConfigInput, {
+			preset: definition.preset,
+			version: VERSION,
+		});
 		return { ...project, config: project.config as unknown as Record<string, unknown> };
 	},
 };
