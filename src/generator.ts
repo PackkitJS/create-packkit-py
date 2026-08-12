@@ -5,6 +5,7 @@ import { PACKKIT_PROTOCOL_VERSION } from '@packkit/core';
 import type {
 	GeneratedProject,
 	GeneratorSchema,
+	ManifestDiffer,
 	PackkitGenerator,
 	PresetDescriptor,
 	ProjectDefinition,
@@ -12,6 +13,8 @@ import type {
 import { GENERATOR_ID, PROVENANCE_SCHEMA_VERSION } from './constants.js';
 import { PRESETS, PRESET_INFO, PRESET_NAMES, resolvePreset } from './presets.js';
 import { generate } from './generate.js';
+import { pyprojectDiffer } from './manifest-differ.js';
+import { upgradeProject, type UpgradeInput } from './upgrade.js';
 import type { PyConfigInput } from './types.js';
 
 function selfVersion(): string {
@@ -36,14 +39,20 @@ export const pythonGenerator: PackkitGenerator = {
 	id: GENERATOR_ID,
 	language: 'python',
 	version: VERSION,
-	maturity: 'preview',
+	maturity: 'stable',
 	protocol: {
 		version: PACKKIT_PROTOCOL_VERSION,
-		capabilities: ['generate', 'deployment-contract', 'project-definition'],
+		capabilities: ['generate', 'deployment-contract', 'project-definition', 'baseline-upgrade'],
 	},
 
+	// The contract's array defaults each differ's Diff to the generic
+	// ManifestDiffResult; pyprojectDiffer returns its own richer PyprojectDiff, so
+	// widen here (its precise type is still exported for direct consumers). The
+	// cast goes away once core's field is generalized to ManifestDiffer<unknown, unknown>[].
+	manifestDiffers: [pyprojectDiffer as unknown as ManifestDiffer],
+
 	listPresets(): PresetDescriptor[] {
-		return PRESET_NAMES.map((id) => ({ id, description: PRESET_INFO[id], maturity: 'preview' }));
+		return PRESET_NAMES.map((id) => ({ id, description: PRESET_INFO[id], maturity: 'stable' }));
 	},
 
 	getSchema(): GeneratorSchema {
@@ -98,5 +107,12 @@ export const pythonGenerator: PackkitGenerator = {
 			version: VERSION,
 		});
 		return { ...project, config: project.config as unknown as Record<string, unknown> };
+	},
+
+	// Baseline-aware re-generation: replays the definition and three-way diffs
+	// files (and pyproject.toml) against the stored baseline, so template updates
+	// and user edits are told apart. Pure — reports the plan, applies nothing.
+	upgradeProject(input) {
+		return upgradeProject({ ...(input as UpgradeInput), version: VERSION });
 	},
 };

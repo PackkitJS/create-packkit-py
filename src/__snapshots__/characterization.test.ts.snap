@@ -65,6 +65,50 @@ uv run fixture world
     "description": "A fixture project.",
     "author": "Fixture Author <fixture@example.com>",
     "target": "cli"
+  },
+  "baseline": {
+    "schemaVersion": 1,
+    "files": {
+      ".gitignore": {
+        "hash": "1fa3c30be8a662"
+      },
+      ".python-version": {
+        "hash": "0b3856b0ad408a"
+      },
+      "LICENSE": {
+        "hash": "086c0b3374a5ed"
+      },
+      "README.md": {
+        "hash": "00a66008afc525"
+      },
+      "pyproject.toml": {
+        "hash": "1758e4a2825f5b"
+      },
+      "src/fixture/__init__.py": {
+        "hash": "08fe17034d8b8b"
+      },
+      "src/fixture/__main__.py": {
+        "hash": "0bdc68be85c834"
+      },
+      "src/fixture/py.typed": {
+        "hash": "0bdcb81aee8d83"
+      },
+      "tests/test_fixture.py": {
+        "hash": "11bb35555fbbad"
+      }
+    },
+    "pyproject": {
+      "dependencies": [],
+      "devDependencies": [
+        "pytest>=8",
+        "ruff>=0.6",
+        "mypy>=1.11"
+      ],
+      "scripts": {
+        "fixture": "fixture.__main__:main"
+      },
+      "requiresPython": ">=3.11"
+    }
   }
 }
 ",
@@ -212,6 +256,45 @@ uv run mypy
   "settings": {
     "description": "A fixture project.",
     "author": "Fixture Author <fixture@example.com>"
+  },
+  "baseline": {
+    "schemaVersion": 1,
+    "files": {
+      ".gitignore": {
+        "hash": "1fa3c30be8a662"
+      },
+      ".python-version": {
+        "hash": "0b3856b0ad408a"
+      },
+      "LICENSE": {
+        "hash": "086c0b3374a5ed"
+      },
+      "README.md": {
+        "hash": "00be63e7c17da2"
+      },
+      "pyproject.toml": {
+        "hash": "0012b9dca53ffb"
+      },
+      "src/fixture/__init__.py": {
+        "hash": "08fe17034d8b8b"
+      },
+      "src/fixture/py.typed": {
+        "hash": "0bdcb81aee8d83"
+      },
+      "tests/test_fixture.py": {
+        "hash": "1d266741a709bc"
+      }
+    },
+    "pyproject": {
+      "dependencies": [],
+      "devDependencies": [
+        "pytest>=8",
+        "ruff>=0.6",
+        "mypy>=1.11"
+      ],
+      "scripts": {},
+      "requiresPython": ">=3.11"
+    }
   }
 }
 ",

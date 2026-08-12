@@ -4,6 +4,7 @@ import { GENERATOR_ID, PROVENANCE_SCHEMA_VERSION } from './constants.js';
 import { normalizeConfig } from './options.js';
 import { distributionName, moduleName } from './naming.js';
 import { provenance } from './provenance.js';
+import { buildBaseline } from './baseline.js';
 import { deriveDeploymentContract } from './deployment.js';
 import { licenseText } from './license.js';
 
@@ -30,7 +31,12 @@ export function generate(
 	if (config.license !== 'none')
 		files['LICENSE'] = licenseText(config.license, authorName(config.author));
 
-	files['packkit.json'] = provenance(config, { preset: options.preset, version: options.version });
+	const baseline = buildBaseline(files);
+	files['packkit.json'] = provenance(config, {
+		preset: options.preset,
+		version: options.version,
+		baseline,
+	});
 
 	return {
 		config,
