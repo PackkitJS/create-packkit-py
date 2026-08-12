@@ -1,0 +1,12 @@
+name: Integration
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  integration:
+    # Scaffolds each preset with the real CLI and runs uv/pytest/ruff/mypy on the
+    # generated project. See PackkitJS/packkit-actions + scripts/integration.mjs.
+    uses: PackkitJS/packkit-actions/.github/workflows/generator-integration.yml@v1
+    with:
+      setup-uv: true
