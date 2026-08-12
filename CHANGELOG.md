@@ -1,28 +1,4 @@
-# Changelog
-
-All notable changes to `create-packkit-py` are documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [Unreleased]
-
-### Added
-
-- **End-to-end integration tests** (`scripts/integration.mjs`, `test:integration`
-  script): scaffold each preset with the real built CLI, then `uv sync` and run the
-  generated project's own tooling (pytest, ruff, mypy) — and, for `py-cli`, execute
-  the console script. Runs in CI via the shared `generator-integration@v1` workflow
-  (with `setup-uv`). This is the reference implementation of the org's
-  `test:integration` contract.
-- **Security workflow** — weekly + per-PR `npm audit` gate via the shared
-  `security@v1` workflow.
-
-### Changed
-
-- CI now runs via the shared `PackkitJS/packkit-actions` reusable workflow
-  (`generator-ci@v1`). Added a standard `check` npm script (typecheck + lint +
-  test + build + package validation) as the single language-agnostic CI entrypoint.
+# create-packkit-py
 
 ## [1.0.0] - 2026-08-12
 
@@ -51,6 +27,5 @@ published to npm.)
 - Maturity raised from `preview` to `stable`; presets report `stable`.
 - `@packkit/core` bumped to `^0.1.1`.
 
-[Unreleased]: https://github.com/PackkitJS/create-packkit-py/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/PackkitJS/create-packkit-py/releases/tag/v1.0.0
 [0.1.0]: https://github.com/PackkitJS/create-packkit-py/releases/tag/v0.1.0
