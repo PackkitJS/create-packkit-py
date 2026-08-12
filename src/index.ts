@@ -5,5 +5,9 @@ export { generate } from './generate.js';
 export { normalizeConfig, defaultConfig } from './options.js';
 export { PRESETS, PRESET_NAMES, PRESET_ALIASES, PRESET_INFO, resolvePreset } from './presets.js';
 export { distributionName, moduleName } from './naming.js';
+export { deriveDeploymentContract } from './deployment.js';
 export { PackkitPyError } from './errors.js';
+export { GENERATOR_ID } from './constants.js';
+// create-packkit-py as a @packkit/core PackkitGenerator (the platform interface).
+export { pythonGenerator } from './generator.js';
 export type * from './types.js';

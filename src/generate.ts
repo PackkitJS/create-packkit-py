@@ -1,11 +1,17 @@
+import { PACKKIT_PROTOCOL_VERSION } from '@packkit/core';
 import type { GeneratedPyProject, PyConfig, PyConfigInput } from './types.js';
+import { GENERATOR_ID, PROVENANCE_SCHEMA_VERSION } from './constants.js';
 import { normalizeConfig } from './options.js';
 import { distributionName, moduleName } from './naming.js';
 import { provenance } from './provenance.js';
+import { deriveDeploymentContract } from './deployment.js';
 import { licenseText } from './license.js';
 
 /** Generate a Python project in memory. Deterministic: same config → same bytes. */
-export function generate(input: PyConfigInput, options: { preset?: string; version?: string } = {}): GeneratedPyProject {
+export function generate(
+	input: PyConfigInput,
+	options: { preset?: string; version?: string } = {},
+): GeneratedPyProject {
 	const config = normalizeConfig(input);
 	const dist = distributionName(config.name);
 	const mod = moduleName(dist);
@@ -21,14 +27,29 @@ export function generate(input: PyConfigInput, options: { preset?: string; versi
 		'.python-version': `${config.pythonVersion}\n`,
 	};
 	if (isCli) files[`src/${mod}/__main__.py`] = mainPy(config, dist, mod);
-	if (config.license !== 'none') files['LICENSE'] = licenseText(config.license, authorName(config.author));
+	if (config.license !== 'none')
+		files['LICENSE'] = licenseText(config.license, authorName(config.author));
 
 	files['packkit.json'] = provenance(config, { preset: options.preset, version: options.version });
 
 	return {
 		config,
 		files,
-		summary: { distributionName: dist, moduleName: mod, target: config.target, fileCount: Object.keys(files).length },
+		diagnostics: [],
+		metadata: {
+			generatorId: GENERATOR_ID,
+			generatorVersion: options.version,
+			protocolVersion: PACKKIT_PROTOCOL_VERSION,
+			schemaVersion: PROVENANCE_SCHEMA_VERSION,
+			preset: options.preset,
+		},
+		deploymentContract: deriveDeploymentContract(config),
+		summary: {
+			distributionName: dist,
+			moduleName: mod,
+			target: config.target,
+			fileCount: Object.keys(files).length,
+		},
 	};
 }
 
@@ -47,7 +68,9 @@ function authorEmail(author: string): string | undefined {
 function pyprojectToml(cfg: PyConfig, dist: string, mod: string): string {
 	const tv = `py${cfg.pythonVersion.replace('.', '')}`;
 	const email = authorEmail(cfg.author);
-	const author = email ? `{ name = "${authorName(cfg.author)}", email = "${email}" }` : `{ name = "${authorName(cfg.author)}" }`;
+	const author = email
+		? `{ name = "${authorName(cfg.author)}", email = "${email}" }`
+		: `{ name = "${authorName(cfg.author)}" }`;
 	const dev = ['"pytest>=8"', '"ruff>=0.6"', ...(cfg.typecheck ? ['"mypy>=1.11"'] : [])];
 
 	const lines = [
@@ -88,7 +111,13 @@ function pyprojectToml(cfg: PyConfig, dist: string, mod: string): string {
 		'addopts = "-q"',
 	);
 	if (cfg.typecheck) {
-		lines.push('', '[tool.mypy]', `python_version = "${cfg.pythonVersion}"`, 'strict = true', 'files = ["src", "tests"]');
+		lines.push(
+			'',
+			'[tool.mypy]',
+			`python_version = "${cfg.pythonVersion}"`,
+			'strict = true',
+			'files = ["src", "tests"]',
+		);
 	}
 	return `${lines.join('\n')}\n`;
 }
@@ -131,7 +160,14 @@ function mainPy(cfg: PyConfig, dist: string, mod: string): string {
 
 function testPy(mod: string, isCli: boolean): string {
 	if (!isCli) {
-		return [`from ${mod} import greet`, '', '', 'def test_greet() -> None:', '    assert greet("world") == "Hello, world!"', ''].join('\n');
+		return [
+			`from ${mod} import greet`,
+			'',
+			'',
+			'def test_greet() -> None:',
+			'    assert greet("world") == "Hello, world!"',
+			'',
+		].join('\n');
 	}
 	// CLI test: all imports at the top (ruff E402), typed pytest fixtures (mypy strict).
 	return [
@@ -175,7 +211,20 @@ function readme(cfg: PyConfig, dist: string): string {
 }
 
 function gitignore(): string {
-	return ['__pycache__/', '*.py[cod]', '.venv/', 'venv/', 'dist/', 'build/', '*.egg-info/', '.pytest_cache/', '.mypy_cache/', '.ruff_cache/', '.coverage', ''].join('\n');
+	return [
+		'__pycache__/',
+		'*.py[cod]',
+		'.venv/',
+		'venv/',
+		'dist/',
+		'build/',
+		'*.egg-info/',
+		'.pytest_cache/',
+		'.mypy_cache/',
+		'.ruff_cache/',
+		'.coverage',
+		'',
+	].join('\n');
 }
 
 function dist_title(mod: string): string {
