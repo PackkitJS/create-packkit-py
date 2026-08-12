@@ -77,7 +77,7 @@ function pyprojectToml(cfg: PyConfig, dist: string, mod: string): string {
 	const author = email
 		? `{ name = "${authorName(cfg.author)}", email = "${email}" }`
 		: `{ name = "${authorName(cfg.author)}" }`;
-	const dev = ['"pytest>=8"', '"ruff>=0.6"', ...(cfg.typecheck ? ['"mypy>=1.11"'] : [])];
+	const dev = ['"pytest>=9"', '"ruff>=0.6"', ...(cfg.typecheck ? ['"mypy>=2"'] : [])];
 
 	const lines = [
 		'[project]',

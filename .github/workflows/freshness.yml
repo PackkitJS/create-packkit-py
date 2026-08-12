@@ -1,0 +1,16 @@
+name: Dependency freshness
+on:
+  schedule:
+    - cron: '0 9 * * 1' # Mondays
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'src/generate.ts' # where the emitted deps live
+      - 'scripts/check-freshness.mjs'
+jobs:
+  freshness:
+    permissions: # the caller must grant issues: write for the tracking issue
+      contents: read
+      issues: write
+    uses: PackkitJS/packkit-actions/.github/workflows/dependency-freshness.yml@v1
