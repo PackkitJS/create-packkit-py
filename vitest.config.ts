@@ -1,7 +1,10 @@
+import { readFileSync } from 'node:fs';
 import { defineConfig } from 'vitest/config';
 
+// Mirror tsup's build-time version injection so tests (which import src directly)
+// see the same __PACKKIT_PY_VERSION__ the built package does.
+const { version } = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
+
 export default defineConfig({
-	test: {
-		coverage: { provider: 'v8', reporter: ['text', 'lcov'] },
-	},
+	define: { __PACKKIT_PY_VERSION__: JSON.stringify(version) },
 });
