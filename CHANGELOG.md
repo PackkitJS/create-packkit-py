@@ -1,5 +1,14 @@
 # create-packkit-py
 
+## 2.1.2
+
+### Patch Changes
+
+- cbb8935: Update the emitted `packkit.json` `$schema` URL to the renamed org's Pages subdomain
+  (`packkitjs.github.io` → `packkitlabs.github.io`) following the `PackkitJS` → `PackkitLabs`
+  rename, so newly scaffolded projects reference the live schema location. Cosmetic — the
+  `$schema` is an editor-validation hint; no runtime behavior changes.
+
 ## 2.1.1
 
 ### Patch Changes
