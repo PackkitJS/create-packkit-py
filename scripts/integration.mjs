@@ -1,7 +1,7 @@
 // End-to-end integration: scaffold each preset with the REAL built CLI, then set
 // the project up with uv and run its own tooling (pytest, ruff, mypy) — and, for a
 // CLI target, actually execute the console script. This is the reference
-// implementation of the `test:integration` contract that PackkitJS/packkit-actions'
+// implementation of the `test:integration` contract that PackkitLabs/packkit-actions'
 // generator-integration workflow invokes; every generator repo implements the same
 // script name, the shared workflow stays language-agnostic.
 //

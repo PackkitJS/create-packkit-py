@@ -58,7 +58,7 @@ uv run fixture world
 \`\`\`
 ",
   "packkit.json": "{
-  "$schema": "https://packkitjs.github.io/create-packkit-py/packkit.schema.json",
+  "$schema": "https://packkitlabs.github.io/create-packkit-py/packkit.schema.json",
   "generator": "create-packkit-py",
   "preset": "py-cli",
   "settings": {
@@ -250,7 +250,7 @@ uv run mypy
 \`\`\`
 ",
   "packkit.json": "{
-  "$schema": "https://packkitjs.github.io/create-packkit-py/packkit.schema.json",
+  "$schema": "https://packkitlabs.github.io/create-packkit-py/packkit.schema.json",
   "generator": "create-packkit-py",
   "preset": "py-lib",
   "settings": {
@@ -448,7 +448,7 @@ Config via env: \`WORKER_MAX_ATTEMPTS\` (retries before a message is routed to t
 poison-message seam), \`WORKER_LOG_LEVEL\`.
 ",
   "packkit.json": "{
-  "$schema": "https://packkitjs.github.io/create-packkit-py/packkit.schema.json",
+  "$schema": "https://packkitlabs.github.io/create-packkit-py/packkit.schema.json",
   "generator": "create-packkit-py",
   "preset": "py-worker",
   "settings": {

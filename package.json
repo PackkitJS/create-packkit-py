@@ -2,13 +2,13 @@
 	"name": "create-packkit-py",
 	"version": "2.1.1",
 	"description": "Scaffold modern Python projects — pyproject/uv, ruff, pytest, src layout — from a CLI or the browser. Packkit's Python sibling.",
-	"homepage": "https://github.com/PackkitJS/create-packkit-py#readme",
+	"homepage": "https://github.com/PackkitLabs/create-packkit-py#readme",
 	"bugs": {
-		"url": "https://github.com/PackkitJS/create-packkit-py/issues"
+		"url": "https://github.com/PackkitLabs/create-packkit-py/issues"
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/PackkitJS/create-packkit-py.git"
+		"url": "git+https://github.com/PackkitLabs/create-packkit-py.git"
 	},
 	"license": "MIT",
 	"author": "DanMat <dannymatthew@gmail.com>",

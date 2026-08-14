@@ -44,7 +44,7 @@
 
 ### Patch Changes
 
-- 5c11d9f: Adopt the shared PackkitJS/packkit-actions CI. Runs `generator-ci@v1` via a standard `check` script; adds end-to-end integration tests through `generator-integration@v1` (scaffold each preset with the real CLI, then `uv sync` + pytest/ruff/mypy, and execute the console script for `py-cli`); adds a `security@v1` npm-audit gate. No runtime changes to the generated output.
+- 5c11d9f: Adopt the shared PackkitLabs/packkit-actions CI. Runs `generator-ci@v1` via a standard `check` script; adds end-to-end integration tests through `generator-integration@v1` (scaffold each preset with the real CLI, then `uv sync` + pytest/ruff/mypy, and execute the console script for `py-cli`); adds a `security@v1` npm-audit gate. No runtime changes to the generated output.
 
 ## [1.0.0] - 2026-08-12
 
@@ -73,5 +73,5 @@ published to npm.)
 - Maturity raised from `preview` to `stable`; presets report `stable`.
 - `@packkit/core` bumped to `^0.1.1`.
 
-[1.0.0]: https://github.com/PackkitJS/create-packkit-py/releases/tag/v1.0.0
-[0.1.0]: https://github.com/PackkitJS/create-packkit-py/releases/tag/v0.1.0
+[1.0.0]: https://github.com/PackkitLabs/create-packkit-py/releases/tag/v1.0.0
+[0.1.0]: https://github.com/PackkitLabs/create-packkit-py/releases/tag/v0.1.0

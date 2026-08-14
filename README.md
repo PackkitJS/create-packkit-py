@@ -1,15 +1,15 @@
 # create-packkit-py 🐍📦
 
-> Scaffold a modern **Python** project — `pyproject.toml`/uv, ruff, pytest, `src/` layout — from a CLI (and soon the browser). [Packkit](https://github.com/PackkitJS/create-packkit)'s Python sibling.
+> Scaffold a modern **Python** project — `pyproject.toml`/uv, ruff, pytest, `src/` layout — from a CLI (and soon the browser). [Packkit](https://github.com/PackkitLabs/create-packkit)'s Python sibling.
 
-[![npm](https://img.shields.io/npm/v/create-packkit-py.svg)](https://www.npmjs.com/package/create-packkit-py) [![CI](https://github.com/PackkitJS/create-packkit-py/actions/workflows/ci.yml/badge.svg)](https://github.com/PackkitJS/create-packkit-py/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![npm](https://img.shields.io/npm/v/create-packkit-py.svg)](https://www.npmjs.com/package/create-packkit-py) [![CI](https://github.com/PackkitLabs/create-packkit-py/actions/workflows/ci.yml/badge.svg)](https://github.com/PackkitLabs/create-packkit-py/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Like `create-packkit`, this is a **JavaScript generator** — but its *output* is an
+Like `create-packkit`, this is a **JavaScript generator** — but its _output_ is an
 idiomatic Python project. That means the whole Packkit engine pattern (a
 deterministic core, presets, a browser configurator, `--schema`, MCP, and a
 `packkit.json` provenance file) carries over, while you get standard Python:
 PEP 621 `pyproject.toml`, a `src/` layout, ruff, pytest, mypy, and a hatchling
-build. No Python toolchain is needed to *generate* — only to run what's generated.
+build. No Python toolchain is needed to _generate_ — only to run what's generated.
 
 ## Quick start
 
@@ -25,10 +25,10 @@ box** — the same guarantee `create-packkit` makes for JS/TS.
 
 ## Presets
 
-| Preset | Alias | What you get |
-| --- | --- | --- |
+| Preset   | Alias | What you get                                                                       |
+| -------- | ----- | ---------------------------------------------------------------------------------- |
 | `py-lib` | `lib` | Library — `src/` layout, ruff, pytest, mypy (strict), hatchling build, `py.typed`. |
-| `py-cli` | `cli` | Everything in `py-lib` plus an `argparse` entry point wired as a console script. |
+| `py-cli` | `cli` | Everything in `py-lib` plus an `argparse` entry point wired as a console script.   |
 
 ## Options
 

@@ -13,4 +13,4 @@ jobs:
     permissions: # the caller must grant issues: write for the tracking issue
       contents: read
       issues: write
-    uses: PackkitJS/packkit-actions/.github/workflows/dependency-freshness.yml@v1
+    uses: PackkitLabs/packkit-actions/.github/workflows/dependency-freshness.yml@v1

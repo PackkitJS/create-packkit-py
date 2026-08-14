@@ -210,7 +210,7 @@ function readme(cfg: PyConfig, dist: string): string {
 	return [
 		`# ${dist}`,
 		'',
-		`> ${cfg.description || 'A modern Python project scaffolded with [create-packkit-py](https://github.com/PackkitJS/create-packkit-py).'}`,
+		`> ${cfg.description || 'A modern Python project scaffolded with [create-packkit-py](https://github.com/PackkitLabs/create-packkit-py).'}`,
 		'',
 		'## Develop',
 		'',
