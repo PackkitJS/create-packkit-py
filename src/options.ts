@@ -13,7 +13,7 @@ export function defaultConfig(): Omit<PyConfig, 'name'> {
 	};
 }
 
-const TARGETS: PyTarget[] = ['library', 'cli'];
+const TARGETS: PyTarget[] = ['library', 'cli', 'worker'];
 const LICENSES: PyLicense[] = ['MIT', 'none'];
 
 /** Merge input over defaults and validate enum fields. Name is required. */
@@ -27,15 +27,26 @@ export function normalizeConfig(input: PyConfigInput): PyConfig {
 	if (input.pythonVersion != null) cfg.pythonVersion = String(input.pythonVersion);
 	if (input.typecheck != null) cfg.typecheck = Boolean(input.typecheck);
 	if (input.target != null) {
-		if (!TARGETS.includes(input.target)) throw new PackkitPyError('INVALID_TARGET', `Unknown target "${input.target}". Expected one of: ${TARGETS.join(', ')}.`);
+		if (!TARGETS.includes(input.target))
+			throw new PackkitPyError(
+				'INVALID_TARGET',
+				`Unknown target "${input.target}". Expected one of: ${TARGETS.join(', ')}.`,
+			);
 		cfg.target = input.target;
 	}
 	if (input.license != null) {
-		if (!LICENSES.includes(input.license)) throw new PackkitPyError('INVALID_LICENSE', `Unknown license "${input.license}". Expected one of: ${LICENSES.join(', ')}.`);
+		if (!LICENSES.includes(input.license))
+			throw new PackkitPyError(
+				'INVALID_LICENSE',
+				`Unknown license "${input.license}". Expected one of: ${LICENSES.join(', ')}.`,
+			);
 		cfg.license = input.license;
 	}
 	if (!/^3\.\d{1,2}$/.test(cfg.pythonVersion)) {
-		throw new PackkitPyError('INVALID_PYTHON_VERSION', `"${cfg.pythonVersion}" is not a supported Python version (expected e.g. 3.11).`);
+		throw new PackkitPyError(
+			'INVALID_PYTHON_VERSION',
+			`"${cfg.pythonVersion}" is not a supported Python version (expected e.g. 3.11).`,
+		);
 	}
 	return cfg;
 }

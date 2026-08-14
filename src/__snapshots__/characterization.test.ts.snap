@@ -352,3 +352,372 @@ def test_greet() -> None:
 ",
 }
 `;
+
+exports[`characterization: preset output is byte-stable > py-worker matches its snapshot 1`] = `
+{
+  ".dockerignore": "__pycache__/
+*.py[cod]
+.venv/
+dist/
+build/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.git/
+",
+  ".gitignore": "__pycache__/
+*.py[cod]
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+",
+  ".python-version": "3.11
+",
+  "Dockerfile": "# Container image for the worker. A worker is a long-running process, NOT an HTTP
+# server — so there is no EXPOSE and no HTTP HEALTHCHECK; liveness is the process.
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY pyproject.toml README.md ./
+COPY src ./src
+RUN pip install --no-cache-dir .
+
+# Run unprivileged; STOPSIGNAL makes \`docker stop\` send SIGTERM so the worker drains.
+RUN useradd --create-home worker
+USER worker
+STOPSIGNAL SIGTERM
+CMD ["python", "-m", "fixture"]
+",
+  "LICENSE": "MIT License
+
+Copyright (c) Fixture Author
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+",
+  "README.md": "# fixture
+
+> A fixture project.
+
+## Develop
+
+\`\`\`sh
+uv sync --all-extras        # or: pip install -e ".[dev]"
+uv run pytest
+uv run ruff check .
+uv run mypy
+\`\`\`
+
+## Run
+
+A transport-agnostic background worker: it reads newline-delimited messages from
+stdin (the demo source), runs \`handle()\` on each, and drains in-flight work on
+\`SIGTERM\`/\`SIGINT\` before exiting 0. Wire \`receive()\` in \`worker.py\` to your queue.
+
+\`\`\`sh
+printf 'one\\ntwo\\n' | uv run python -m fixture
+
+# container (no HTTP port — liveness is the process)
+docker build -t fixture . && docker run --rm -i fixture
+\`\`\`
+
+Config via env: \`WORKER_MAX_ATTEMPTS\` (retries before a message is routed to the
+poison-message seam), \`WORKER_LOG_LEVEL\`.
+",
+  "packkit.json": "{
+  "$schema": "https://packkitjs.github.io/create-packkit-py/packkit.schema.json",
+  "generator": "create-packkit-py",
+  "preset": "py-worker",
+  "settings": {
+    "description": "A fixture project.",
+    "author": "Fixture Author <fixture@example.com>",
+    "target": "worker"
+  },
+  "baseline": {
+    "schemaVersion": 1,
+    "files": {
+      ".dockerignore": {
+        "hash": "1f8f17bbe8df87"
+      },
+      ".gitignore": {
+        "hash": "1fa3c30be8a662"
+      },
+      ".python-version": {
+        "hash": "0b3856b0ad408a"
+      },
+      "Dockerfile": {
+        "hash": "1604375caee744"
+      },
+      "LICENSE": {
+        "hash": "086c0b3374a5ed"
+      },
+      "README.md": {
+        "hash": "1bf1fb90c91c57"
+      },
+      "pyproject.toml": {
+        "hash": "160a1638937801"
+      },
+      "src/fixture/__init__.py": {
+        "hash": "0f552882c9c940"
+      },
+      "src/fixture/__main__.py": {
+        "hash": "1142cdd753e316"
+      },
+      "src/fixture/handler.py": {
+        "hash": "0210538cf76220"
+      },
+      "src/fixture/py.typed": {
+        "hash": "0bdcb81aee8d83"
+      },
+      "src/fixture/worker.py": {
+        "hash": "14c7f9fa5083a2"
+      },
+      "tests/test_fixture.py": {
+        "hash": "1e5b7c29cdd4be"
+      }
+    },
+    "pyproject": {
+      "dependencies": [],
+      "devDependencies": [
+        "pytest>=9",
+        "ruff>=0.6",
+        "mypy>=2"
+      ],
+      "scripts": {},
+      "requiresPython": ">=3.11"
+    }
+  }
+}
+",
+  "pyproject.toml": "[project]
+name = "fixture"
+version = "0.1.0"
+description = "A fixture project."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Fixture Author", email = "fixture@example.com" }]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=9", "ruff>=0.6", "mypy>=2"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fixture"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src", "tests"]
+",
+  "src/fixture/__init__.py": """"A fixture project."""
+
+__version__ = "0.1.0"
+",
+  "src/fixture/__main__.py": """"Entry point: run the worker with \`python -m fixture\`."""
+
+import sys
+
+from .worker import run
+
+if __name__ == "__main__":
+    sys.exit(run())
+",
+  "src/fixture/handler.py": """"Business logic for one message — the unit-testable seam.
+
+Pure: no queue, no I/O, no logging. Replace the body with your processing; raise
+to signal a failure the worker should retry (and, after WORKER_MAX_ATTEMPTS,
+route to the poison-message handler).
+"""
+
+
+def handle(message: str) -> None:
+    if not message.strip():
+        raise ValueError("empty message")
+    # TODO: replace with your processing.
+",
+  "src/fixture/py.typed": "",
+  "src/fixture/worker.py": """"A transport-agnostic background worker.
+
+Pull messages from a source, run the handler with bounded retries, and drain
+in-flight work on SIGTERM/SIGINT before exiting 0. No queue SDK is baked in — wire
+\`receive()\` to your transport (SQS, Kafka, Redis, ...). Logs are JSON lines on
+stdout; liveness is the process itself, so there is no HTTP port or health check.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import select
+import signal
+import sys
+from collections.abc import Iterator
+from dataclasses import dataclass
+from types import FrameType
+
+from .handler import handle
+
+
+@dataclass(frozen=True)
+class Config:
+    max_attempts: int
+    log_level: str
+
+    @classmethod
+    def from_env(cls) -> Config:
+        return cls(
+            max_attempts=int(os.environ.get("WORKER_MAX_ATTEMPTS", "3")),
+            log_level=os.environ.get("WORKER_LOG_LEVEL", "info"),
+        )
+
+
+def log(event: str, *, level: str = "info", **fields: object) -> None:
+    """Emit one structured JSON line on stdout."""
+    print(json.dumps({"level": level, "event": event, **fields}), flush=True)
+
+
+class Shutdown:
+    """Flips on the first SIGTERM/SIGINT so the loop stops taking new work and
+    drains what is in flight."""
+
+    def __init__(self) -> None:
+        self.requested = False
+        signal.signal(signal.SIGTERM, self._request)
+        signal.signal(signal.SIGINT, self._request)
+
+    def _request(self, signum: int, _frame: FrameType | None) -> None:
+        self.requested = True
+        log("shutdown_requested", signal=signal.Signals(signum).name)
+
+
+def receive(shutdown: Shutdown) -> Iterator[str]:
+    """The message-source seam — a demo that reads newline-delimited messages from
+    stdin, polling so a drain can interrupt an idle wait. Replace with your
+    transport's receive loop; keep it a generator so the worker can stop cleanly
+    between messages."""
+    while not shutdown.requested:
+        ready, _, _ = select.select([sys.stdin], [], [], 0.2)
+        if not ready:
+            continue
+        line = sys.stdin.readline()
+        if line == "":  # EOF — the source is exhausted
+            return
+        yield line.rstrip("\\n")
+
+
+def on_poison(message: str, error: Exception) -> None:
+    """A message that failed every attempt. Default: log and drop. Replace with a
+    dead-letter queue, a table, an alert — whatever poison means for your system."""
+    log("poison_message", level="error", message=message, error=str(error))
+
+
+def process(message: str, config: Config) -> None:
+    for attempt in range(1, config.max_attempts + 1):
+        try:
+            handle(message)
+        except Exception as error:  # a worker must not die on one bad message
+            log(
+                "handle_failed",
+                level="warning",
+                message=message,
+                attempt=attempt,
+                error=str(error),
+            )
+            if attempt == config.max_attempts:
+                on_poison(message, error)
+        else:
+            log("handled", message=message, attempt=attempt)
+            return
+
+
+def run() -> int:
+    config = Config.from_env()
+    shutdown = Shutdown()
+    log("worker_started", max_attempts=config.max_attempts)
+
+    processed = 0
+    for message in receive(shutdown):
+        process(message, config)  # finish this message before re-checking shutdown
+        processed += 1
+
+    log("worker_stopped", processed=processed, drained=shutdown.requested)
+    return 0
+",
+  "tests/test_fixture.py": "import signal
+import subprocess
+import sys
+import time
+
+import pytest
+
+from fixture.handler import handle
+
+
+def test_handle_accepts_a_message() -> None:
+    handle("hello")
+
+
+def test_handle_rejects_an_empty_message() -> None:
+    with pytest.raises(ValueError):
+        handle("   ")
+
+
+def test_worker_drains_on_sigterm_and_exits_zero() -> None:
+    proc = subprocess.Popen(
+        [sys.executable, "-m", "fixture"],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        text=True,
+    )
+    assert proc.stdin is not None
+    proc.stdin.write("one\\n")
+    proc.stdin.flush()
+    time.sleep(0.5)  # let the in-flight message be handled
+    proc.send_signal(signal.SIGTERM)
+    out, _ = proc.communicate(timeout=10)
+
+    assert proc.returncode == 0
+    assert '"event": "handled"' in out
+    assert '"event": "worker_stopped"' in out
+",
+}
+`;

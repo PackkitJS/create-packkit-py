@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
 
 const CLI = join(dirname(fileURLToPath(import.meta.url)), '..', 'dist', 'cli.js');
-const ALL_PRESETS = ['py-lib', 'py-cli'];
+const ALL_PRESETS = ['py-lib', 'py-cli', 'py-worker'];
 const presets = process.argv.slice(2).length ? process.argv.slice(2) : ALL_PRESETS;
 
 // dist name for a project scaffolded as `<preset>-demo` (naming lowercases/hyphenates).

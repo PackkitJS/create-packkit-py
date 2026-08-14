@@ -55,7 +55,7 @@ export const pythonGenerator: PackkitGenerator = {
 				{ id: 'description' },
 				{ id: 'author', description: '"Name <email>"' },
 				{ id: 'license', choices: ['MIT', 'none'], default: 'MIT' },
-				{ id: 'target', choices: ['library', 'cli'], default: 'library' },
+				{ id: 'target', choices: ['library', 'cli', 'worker'], default: 'library' },
 				{ id: 'pythonVersion', default: '3.11', description: 'Minimum Python version' },
 				{ id: 'typecheck', default: true, description: 'mypy strict config + dev dep' },
 			],
