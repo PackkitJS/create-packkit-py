@@ -4,7 +4,7 @@
 
 import type { Diagnostic, GeneratedProjectMetadata, DeploymentContract } from '@packkit/core';
 
-export type PyTarget = 'library' | 'cli';
+export type PyTarget = 'library' | 'cli' | 'worker';
 export type PyLicense = 'MIT' | 'none';
 
 /** Resolved configuration for one generated Python project. */
