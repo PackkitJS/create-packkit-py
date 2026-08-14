@@ -1,6 +1,7 @@
-import { PACKKIT_PROTOCOL_VERSION } from '@packkit/core';
+import { PACKKIT_PROTOCOL_VERSION, extendGeneratedProject } from '@packkit/core';
 import type {
 	GeneratedProject,
+	GeneratedProjectExtension,
 	GeneratorSchema,
 	ManifestDiffer,
 	PackkitGenerator,
@@ -88,6 +89,9 @@ export const pythonGenerator: PackkitGenerator = {
 			generator: { id: GENERATOR_ID, version: VERSION },
 			preset: project.metadata.preset,
 			config: project.config,
+			// Persist any host-layered files so replay re-applies the same add/replace
+			// intent — the generic (non-pyproject) extension surface lives in core.
+			extensions: project.extensions,
 		};
 	},
 
@@ -96,7 +100,12 @@ export const pythonGenerator: PackkitGenerator = {
 			preset: definition.preset,
 			version: VERSION,
 		});
-		return { ...project, config: project.config as unknown as Record<string, unknown> };
+		const base: GeneratedProject = {
+			...project,
+			config: project.config as unknown as Record<string, unknown>,
+		};
+		const ext = definition.extensions as GeneratedProjectExtension | undefined;
+		return ext?.files ? extendGeneratedProject(base, { files: ext.files }).project : base;
 	},
 
 	// Baseline-aware re-generation: replays the definition and three-way diffs

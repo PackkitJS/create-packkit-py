@@ -23,5 +23,7 @@ export type {
 export { buildBaseline, readBaseline } from './baseline.js';
 export type { Baseline } from './baseline.js';
 export { upgradeProject } from './upgrade.js';
-export type { UpgradeInput, UpgradePlan, FileChange } from './upgrade.js';
+export type { UpgradeInput } from './upgrade.js';
+// The upgrade result is the universal envelope from @packkit/core.
+export type { UpgradeResult } from '@packkit/core';
 export type * from './types.js';
