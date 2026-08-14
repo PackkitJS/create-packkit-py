@@ -1,18 +1,13 @@
-// Baseline-aware upgrade planning: regenerate from a stored definition, then a
-// three-way diff of every file (baseline vs on-disk vs freshly-generated) plus the
-// structured pyproject.toml diff. Pure — reports what changed and what is safe to
-// apply; writing is the host's decision. Mirrors create-packkit's upgrade model.
-import { classifyChange, contentHash } from '@packkit/core';
-import type { ChangeClassification, ProjectDefinition } from '@packkit/core';
+// Baseline-aware upgrade for Python projects. The universal file three-way lives
+// in @packkit/core (computeProjectUpgrade); this generator only adds the
+// pyproject.toml structural diff (plan.manifest) and returns the common
+// UpgradeResult envelope, so a host consumes a Python upgrade exactly like a JS one.
+import { computeProjectUpgrade, summarizeFileUpgrade } from '@packkit/core';
+import type { GeneratedProject, ProjectDefinition, UpgradeResult } from '@packkit/core';
 import { generate } from './generate.js';
 import { readBaseline } from './baseline.js';
 import { pyprojectDiffer } from './manifest-differ.js';
-import type { PyprojectDiff } from './manifest-differ.js';
-import type { GeneratedPyProject, PyConfigInput } from './types.js';
-
-export interface FileChange extends ChangeClassification {
-	path: string;
-}
+import type { PyConfigInput } from './types.js';
 
 export interface UpgradeInput {
 	definition: ProjectDefinition;
@@ -20,14 +15,7 @@ export interface UpgradeInput {
 	version?: string;
 }
 
-export interface UpgradePlan {
-	generatedProject: GeneratedPyProject;
-	files: { added: string[]; changed: FileChange[]; unchanged: string[] };
-	pyproject: PyprojectDiff;
-	baselineAvailable: boolean;
-}
-
-export function upgradeProject(input: UpgradeInput): UpgradePlan {
+export function upgradeProject(input: UpgradeInput): UpgradeResult {
 	const { definition, currentFiles } = input;
 	const generated = generate(definition.config as PyConfigInput, {
 		preset: definition.preset,
@@ -35,43 +23,38 @@ export function upgradeProject(input: UpgradeInput): UpgradePlan {
 	});
 	const baseline = readBaseline(currentFiles['packkit.json']);
 
-	const added: string[] = [];
-	const changed: FileChange[] = [];
-	const unchanged: string[] = [];
-	for (const [path, content] of Object.entries(generated.files)) {
-		if (path === 'packkit.json') continue; // provenance is refreshed, not diffed
-		const current = currentFiles[path];
-		if (current === undefined) {
-			added.push(path);
-		} else if (current === content) {
-			unchanged.push(path);
-		} else {
-			const baseHash = baseline?.files?.[path]?.hash;
-			changed.push({
-				path,
-				...classifyChange({
-					hasBaseline: baseHash !== undefined,
-					currentEqualsBaseline: contentHash(current) === baseHash,
-					generatedEqualsBaseline: contentHash(content) === baseHash,
-				}),
-			});
-		}
-	}
+	// packkit.json is provenance (it carries the baseline) — regenerated, not diffed.
+	const generatedFiles = { ...generated.files };
+	delete generatedFiles['packkit.json'];
 
-	const pyproject = pyprojectDiffer.diff({
+	const { plan, patch } = computeProjectUpgrade({
+		generatedFiles,
+		currentFiles,
+		baselineFileHashes: baseline?.files,
+	});
+
+	// Attach the Python-specific structured manifest diff (opaque to core).
+	const manifest = pyprojectDiffer.diff({
 		baseline: baseline?.pyproject as unknown as Record<string, unknown> | undefined,
 		current: pyprojectDiffer.parse(currentFiles['pyproject.toml'] ?? ''),
 		generated: pyprojectDiffer.parse(generated.files['pyproject.toml'] ?? ''),
 	});
 
+	const summary = summarizeFileUpgrade(plan);
 	return {
-		generatedProject: generated,
-		files: {
-			added: added.sort(),
-			changed: changed.sort((a, b) => a.path.localeCompare(b.path)),
-			unchanged: unchanged.sort(),
+		generatedProject: {
+			...generated,
+			config: generated.config as unknown as Record<string, unknown>,
+		} as GeneratedProject,
+		plan: { ...plan, manifest },
+		patch,
+		diagnostics: generated.diagnostics,
+		metadata: {
+			fromVersion: definition.generator?.version,
+			toVersion: input.version,
+			baselineAvailable: plan.baselineAvailable,
+			hasConflicts: summary.conflicts > 0,
+			hasSafeChanges: summary.safeChanges > 0,
 		},
-		pyproject,
-		baselineAvailable: baseline !== undefined,
 	};
 }

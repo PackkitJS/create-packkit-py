@@ -85,7 +85,7 @@
 		"vitest": "^4.0.0"
 	},
 	"dependencies": {
-		"@packkit/core": "^0.1.1",
+		"@packkit/core": "^0.2.0",
 		"smol-toml": "^1.8.0"
 	}
 }

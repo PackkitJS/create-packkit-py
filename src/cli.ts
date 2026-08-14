@@ -4,14 +4,16 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { generate } from './generate.js';
-import { writeProject } from './write.js';
+import { writeGeneratedProject } from '@packkit/core/node';
 import { PRESETS, PRESET_INFO, PRESET_NAMES, PRESET_ALIASES, resolvePreset } from './presets.js';
 import { PackkitPyError } from './errors.js';
 import type { PyConfigInput } from './types.js';
 
 function selfVersion(): string {
 	try {
-		const pkg = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'package.json'), 'utf8'));
+		const pkg = JSON.parse(
+			readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'package.json'), 'utf8'),
+		);
 		return pkg.version ?? '0.0.0';
 	} catch {
 		return '0.0.0';
@@ -26,7 +28,9 @@ Usage:
 
 Presets:
 ${PRESET_NAMES.map((n) => `  ${n.padEnd(8)} ${PRESET_INFO[n]}`).join('\n')}
-  aliases: ${Object.entries(PRESET_ALIASES).map(([a, p]) => `${a}→${p}`).join('  ')}
+  aliases: ${Object.entries(PRESET_ALIASES)
+		.map(([a, p]) => `${a}→${p}`)
+		.join('  ')}
 
 Options:
   --name <name>          Distribution name (or first/second positional)
@@ -69,8 +73,16 @@ function run(argv: string[]): void {
 	const at = pos.findIndex((p) => resolvePreset(p));
 	if (at !== -1) presetToken = pos.splice(at, 1)[0];
 	const name = values.name ?? pos.shift();
-	if (pos.length) throw new PackkitPyError('UNKNOWN_ARG', `Unrecognized argument "${pos[0]}". Run \`create-packkit-py --help\`.`);
-	if (!name) throw new PackkitPyError('MISSING_NAME', 'A project name is required, e.g. `create-packkit-py py-lib my-lib`.');
+	if (pos.length)
+		throw new PackkitPyError(
+			'UNKNOWN_ARG',
+			`Unrecognized argument "${pos[0]}". Run \`create-packkit-py --help\`.`,
+		);
+	if (!name)
+		throw new PackkitPyError(
+			'MISSING_NAME',
+			'A project name is required, e.g. `create-packkit-py py-lib my-lib`.',
+		);
 
 	const canonical = presetToken ? resolvePreset(presetToken) : undefined;
 	const input: PyConfigInput = {
@@ -86,10 +98,15 @@ function run(argv: string[]): void {
 
 	const project = generate(input, { preset: canonical, version: selfVersion() });
 	const dir = values.here ? '.' : project.config.name;
-	const { written, skipped } = writeProject(dir, project.files, { force: !!values.force });
+	const { written, skipped } = writeGeneratedProject(dir, project.files, { force: !!values.force });
 
-	console.log(`Created ${project.config.name} (${project.summary.target}) — ${written.length} files in ${dir === '.' ? 'the current directory' : `${dir}/`}`);
-	if (skipped.length) console.log(`Skipped ${skipped.length} existing file(s): ${skipped.join(', ')} (use --force to overwrite)`);
+	console.log(
+		`Created ${project.config.name} (${project.summary.target}) — ${written.length} files in ${dir === '.' ? 'the current directory' : `${dir}/`}`,
+	);
+	if (skipped.length)
+		console.log(
+			`Skipped ${skipped.length} existing file(s): ${skipped.join(', ')} (use --force to overwrite)`,
+		);
 	console.log('\nNext:');
 	if (dir !== '.') console.log(`  cd ${dir}`);
 	console.log('  uv sync --all-extras');
