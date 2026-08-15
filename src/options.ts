@@ -13,7 +13,7 @@ export function defaultConfig(): Omit<PyConfig, 'name'> {
 	};
 }
 
-const TARGETS: PyTarget[] = ['library', 'cli', 'worker'];
+const TARGETS: PyTarget[] = ['library', 'cli', 'worker', 'service'];
 const LICENSES: PyLicense[] = ['MIT', 'none'];
 
 /** Merge input over defaults and validate enum fields. Name is required. */

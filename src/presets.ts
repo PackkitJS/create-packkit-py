@@ -6,6 +6,7 @@ export const PRESETS: Record<string, PyConfigInput> = {
 	'py-lib': { target: 'library' },
 	'py-cli': { target: 'cli' },
 	'py-worker': { target: 'worker' },
+	'py-service': { target: 'service' },
 };
 
 export const PRESET_NAMES = Object.keys(PRESETS);
@@ -14,6 +15,8 @@ export const PRESET_ALIASES: Record<string, string> = {
 	lib: 'py-lib',
 	cli: 'py-cli',
 	worker: 'py-worker',
+	service: 'py-service',
+	svc: 'py-service',
 };
 
 export const PRESET_INFO: Record<string, string> = {
@@ -21,6 +24,8 @@ export const PRESET_INFO: Record<string, string> = {
 	'py-cli': 'Python CLI — everything in py-lib plus an argparse entry point (console script).',
 	'py-worker':
 		'Python background worker — a transport-agnostic queue/event consumer: handler seam, graceful SIGTERM/SIGINT drain, structured stdout logs, poison-message seam, Dockerfile (no HTTP port). No transport SDK baked in.',
+	'py-service':
+		'Python HTTP service — FastAPI app (/, /healthz) on uvicorn, TestClient tests, Dockerfile; emits the language-neutral service deployment contract.',
 };
 
 /** Resolve a preset name or alias to its canonical id (or undefined). */

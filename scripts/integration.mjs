@@ -7,7 +7,7 @@
 //
 // uv manages its own Python (auto-downloads a matching interpreter), so the host's
 // system Python version is irrelevant. Usage: `node scripts/integration.mjs [preset...]`.
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -15,18 +15,33 @@ import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
 
 const CLI = join(dirname(fileURLToPath(import.meta.url)), '..', 'dist', 'cli.js');
-const ALL_PRESETS = ['py-lib', 'py-cli', 'py-worker'];
+const ALL_PRESETS = ['py-lib', 'py-cli', 'py-worker', 'py-service'];
 const presets = process.argv.slice(2).length ? process.argv.slice(2) : ALL_PRESETS;
 
 // dist name for a project scaffolded as `<preset>-demo` (naming lowercases/hyphenates).
 const distName = (preset) => `${preset}-demo`;
+// the Python module name the scaffold derives from that dist name.
+const pyModule = (preset) => distName(preset).replace(/[^a-z0-9]+/g, '_');
 
 function sh(cmd, args, cwd) {
 	process.stdout.write(`\n$ ${cmd} ${args.join(' ')}   (${cwd})\n`);
 	execFileSync(cmd, args, { cwd, stdio: 'inherit' });
 }
 
-function integrate(preset) {
+async function waitForHealth(url, attempts = 100) {
+	for (let i = 0; i < attempts; i++) {
+		try {
+			const res = await fetch(url);
+			if (res.ok) return res;
+		} catch {
+			/* not up yet */
+		}
+		await new Promise((r) => setTimeout(r, 100));
+	}
+	throw new Error(`service never became ready at ${url}`);
+}
+
+async function integrate(preset) {
 	const workdir = mkdtempSync(join(tmpdir(), `packkit-py-${preset}-`));
 	const name = distName(preset);
 	try {
@@ -51,6 +66,27 @@ function integrate(preset) {
 			}
 			console.log(`  ✓ console script greeted: ${out.trim()}`);
 		}
+
+		// 5. For a service, boot the real uvicorn server and hit /healthz.
+		if (preset === 'py-service') {
+			const mod = pyModule(preset);
+			const port = '8137';
+			process.stdout.write(`\n$ uv run python -m ${mod}   (PORT=${port})\n`);
+			const server = spawn('uv', ['run', 'python', '-m', mod], {
+				cwd: project,
+				env: { ...process.env, PORT: port },
+				stdio: 'inherit',
+			});
+			try {
+				const res = await waitForHealth(`http://127.0.0.1:${port}/healthz`);
+				const body = await res.json();
+				if (body.status !== 'ok')
+					throw new Error(`unexpected /healthz body: ${JSON.stringify(body)}`);
+				console.log(`  ✓ service answered /healthz: ${JSON.stringify(body)}`);
+			} finally {
+				server.kill('SIGTERM');
+			}
+		}
 		console.log(`=== ${preset}: PASS ===`);
 	} finally {
 		rmSync(workdir, { recursive: true, force: true });
@@ -60,7 +96,7 @@ function integrate(preset) {
 let failed = false;
 for (const preset of presets) {
 	try {
-		integrate(preset);
+		await integrate(preset);
 	} catch (err) {
 		failed = true;
 		console.error(`\n✖ ${preset} FAILED: ${err.message}`);

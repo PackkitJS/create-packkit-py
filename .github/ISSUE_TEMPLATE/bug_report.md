@@ -11,6 +11,7 @@ labels: bug
 **Expected behavior**
 
 **Environment**
+
 - Version:
 - Node:
 - OS:

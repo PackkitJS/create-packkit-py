@@ -8,6 +8,23 @@ import { distributionName, moduleName } from './naming.js';
 // is a wheel via hatchling (`uv build`).
 export function deriveDeploymentContract(config: PyConfig): DeploymentContract {
 	if (config.target === 'cli') return { type: 'cli', buildCommand: 'uv build' };
+	if (config.target === 'service') {
+		const mod = moduleName(distributionName(config.name));
+		// The language-neutral `service` contract: a long-running HTTP process whose
+		// liveness is a port + health path. `runtime` names the language, exactly like
+		// the Node and Go services — a provider matches on the contract, not the language.
+		return {
+			type: 'service',
+			runtime: `python-${config.pythonVersion}`,
+			buildCommand: 'uv build',
+			startCommand: `python -m ${mod}`,
+			defaultPort: 8000,
+			portEnvironmentVariable: 'PORT',
+			healthCheckPath: '/healthz',
+			requiredEnvironmentVariables: [],
+			optionalEnvironmentVariables: ['PORT'],
+		};
+	}
 	if (config.target === 'worker') {
 		const mod = moduleName(distributionName(config.name));
 		return {

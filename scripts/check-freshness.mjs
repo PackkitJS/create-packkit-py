@@ -79,7 +79,8 @@ if (errors.length) console.log(`Could not resolve: ${errors.join(', ')}`);
 
 if (held.length) {
 	console.log(`\nℹ️  Held back on purpose (${held.length}):`);
-	for (const h of held) console.log(`  - \`${h.name}\` @ \`${h.spec}\` (latest \`${h.latest}\`) — ${HELD[h.name]}`);
+	for (const h of held)
+		console.log(`  - \`${h.name}\` @ \`${h.spec}\` (latest \`${h.latest}\`) — ${HELD[h.name]}`);
 }
 
 if (stale.length === 0) {
@@ -87,9 +88,14 @@ if (stale.length === 0) {
 	process.exit(0);
 }
 
-console.log(`\n⚠️  ${stale.length} template dependenc${stale.length === 1 ? 'y is' : 'ies are'} a major behind:\n`);
+console.log(
+	`\n⚠️  ${stale.length} template dependenc${stale.length === 1 ? 'y is' : 'ies are'} a major behind:\n`,
+);
 console.log('| dependency | template | latest | majors behind |');
 console.log('|---|---|---|---|');
-for (const s of stale) console.log(`| \`${s.name}\` | \`${s.spec}\` | \`${s.latest}\` | ${s.behind} |`);
-console.log('\nUpdate the emitted floors in `src/generate.ts` (`pyprojectToml`), then re-run integration.');
+for (const s of stale)
+	console.log(`| \`${s.name}\` | \`${s.spec}\` | \`${s.latest}\` | ${s.behind} |`);
+console.log(
+	'\nUpdate the emitted floors in `src/generate.ts` (`pyprojectToml`), then re-run integration.',
+);
 process.exit(1);

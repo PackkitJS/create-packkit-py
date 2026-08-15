@@ -33,7 +33,9 @@ describe('generate', () => {
 	});
 
 	it('is deterministic — same config, same bytes', () => {
-		expect(generate({ name: 'x', description: 'd' }).files).toEqual(generate({ name: 'x', description: 'd' }).files);
+		expect(generate({ name: 'x', description: 'd' }).files).toEqual(
+			generate({ name: 'x', description: 'd' }).files,
+		);
 	});
 
 	it('--no-typecheck drops mypy entirely', () => {
@@ -43,7 +45,10 @@ describe('generate', () => {
 	});
 
 	it('records generator, preset, version, and settings in packkit.json', () => {
-		const project = generate({ name: 'my-cli', target: 'cli' }, { preset: 'py-cli', version: '0.1.0' });
+		const project = generate(
+			{ name: 'my-cli', target: 'cli' },
+			{ preset: 'py-cli', version: '0.1.0' },
+		);
 		const prov = JSON.parse(project.files['packkit.json'] ?? '{}');
 		expect(prov.generator).toBe('create-packkit-py');
 		expect(prov.preset).toBe('py-cli');
@@ -56,6 +61,8 @@ describe('generate', () => {
 	});
 
 	it('rejects an invalid distribution name', () => {
-		expect(() => generate({ name: 'Bad Name!' })).toThrowError(/not a valid Python distribution name/);
+		expect(() => generate({ name: 'Bad Name!' })).toThrowError(
+			/not a valid Python distribution name/,
+		);
 	});
 });

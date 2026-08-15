@@ -353,6 +353,259 @@ def test_greet() -> None:
 }
 `;
 
+exports[`characterization: preset output is byte-stable > py-service matches its snapshot 1`] = `
+{
+  ".dockerignore": "__pycache__/
+*.py[cod]
+.venv/
+dist/
+build/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.git/
+",
+  ".gitignore": "__pycache__/
+*.py[cod]
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+",
+  ".python-version": "3.11
+",
+  "Dockerfile": "# Container image for the HTTP service. Listens on 8000 (override with PORT).
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY pyproject.toml README.md ./
+COPY src ./src
+RUN pip install --no-cache-dir .
+
+RUN useradd --create-home appuser
+USER appuser
+EXPOSE 8000
+CMD ["python", "-m", "fixture"]
+",
+  "LICENSE": "MIT License
+
+Copyright (c) Fixture Author
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+",
+  "README.md": "# fixture
+
+> A fixture project.
+
+## Develop
+
+\`\`\`sh
+uv sync --all-extras        # or: pip install -e ".[dev]"
+uv run pytest
+uv run ruff check .
+uv run mypy
+\`\`\`
+
+## Run
+
+A FastAPI HTTP service on uvicorn. It serves \`/\` and a \`/healthz\` liveness probe,
+and binds \`$PORT\` (default 8000).
+
+\`\`\`sh
+uv run python -m fixture   # then: curl localhost:8000/healthz
+
+# container
+docker build -t fixture . && docker run --rm -p 8000:8000 fixture
+\`\`\`
+
+Set \`PORT\` to change the listen port.
+",
+  "packkit.json": "{
+  "$schema": "https://packkitlabs.github.io/create-packkit-py/packkit.schema.json",
+  "generator": "create-packkit-py",
+  "preset": "py-service",
+  "settings": {
+    "description": "A fixture project.",
+    "author": "Fixture Author <fixture@example.com>",
+    "target": "service"
+  },
+  "baseline": {
+    "schemaVersion": 1,
+    "files": {
+      ".dockerignore": {
+        "hash": "1f8f17bbe8df87"
+      },
+      ".gitignore": {
+        "hash": "1fa3c30be8a662"
+      },
+      ".python-version": {
+        "hash": "0b3856b0ad408a"
+      },
+      "Dockerfile": {
+        "hash": "1e7b794205a891"
+      },
+      "LICENSE": {
+        "hash": "086c0b3374a5ed"
+      },
+      "README.md": {
+        "hash": "002f0fd7c78f8c"
+      },
+      "pyproject.toml": {
+        "hash": "0561c354c4ec86"
+      },
+      "src/fixture/__init__.py": {
+        "hash": "0f552882c9c940"
+      },
+      "src/fixture/__main__.py": {
+        "hash": "014e1692ff65ce"
+      },
+      "src/fixture/app.py": {
+        "hash": "0cf056db9cebab"
+      },
+      "src/fixture/py.typed": {
+        "hash": "0bdcb81aee8d83"
+      },
+      "tests/test_fixture.py": {
+        "hash": "01390317c9809c"
+      }
+    },
+    "pyproject": {
+      "dependencies": [
+        "fastapi>=0.115",
+        "uvicorn[standard]>=0.30"
+      ],
+      "devDependencies": [
+        "pytest>=9",
+        "ruff>=0.6",
+        "httpx>=0.27",
+        "mypy>=2"
+      ],
+      "scripts": {},
+      "requiresPython": ">=3.11"
+    }
+  }
+}
+",
+  "pyproject.toml": "[project]
+name = "fixture"
+version = "0.1.0"
+description = "A fixture project."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Fixture Author", email = "fixture@example.com" }]
+dependencies = ["fastapi>=0.115", "uvicorn[standard]>=0.30"]
+
+[project.optional-dependencies]
+dev = ["pytest>=9", "ruff>=0.6", "httpx>=0.27", "mypy>=2"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fixture"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src", "tests"]
+",
+  "src/fixture/__init__.py": """"A fixture project."""
+
+__version__ = "0.1.0"
+",
+  "src/fixture/__main__.py": """"Run the HTTP service: \`python -m fixture\` (uvicorn on $PORT)."""
+
+import os
+
+import uvicorn
+
+
+def main() -> None:
+    uvicorn.run(
+        "fixture.app:app",
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", "8000")),
+    )
+
+
+if __name__ == "__main__":
+    main()
+",
+  "src/fixture/app.py": """"The FastAPI application — the testable seam. Add your routes here."""
+
+from fastapi import FastAPI
+
+app = FastAPI(title="fixture")
+
+
+@app.get("/healthz")
+def healthz() -> dict[str, str]:
+    """Liveness probe — the deployment contract points its health check here."""
+    return {"status": "ok"}
+
+
+@app.get("/")
+def root() -> dict[str, str]:
+    return {"message": "Hello, world!"}
+",
+  "src/fixture/py.typed": "",
+  "tests/test_fixture.py": "from fastapi.testclient import TestClient
+
+from fixture.app import app
+
+client = TestClient(app)
+
+
+def test_healthz() -> None:
+    resp = client.get("/healthz")
+    assert resp.status_code == 200
+    assert resp.json() == {"status": "ok"}
+
+
+def test_root() -> None:
+    resp = client.get("/")
+    assert resp.status_code == 200
+    assert "message" in resp.json()
+",
+}
+`;
+
 exports[`characterization: preset output is byte-stable > py-worker matches its snapshot 1`] = `
 {
   ".dockerignore": "__pycache__/

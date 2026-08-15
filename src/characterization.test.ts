@@ -15,12 +15,18 @@ describe('characterization: preset output is byte-stable', () => {
 		it(`${preset} matches its snapshot`, () => {
 			const input = { ...(PRESETS[preset] ?? {}), name: 'fixture', ...FIXED };
 			const { files } = generate(input, { preset });
-			const sorted = Object.fromEntries(Object.keys(files).sort().map((path) => [path, files[path]]));
+			const sorted = Object.fromEntries(
+				Object.keys(files)
+					.sort()
+					.map((path) => [path, files[path]]),
+			);
 			expect(sorted).toMatchSnapshot();
 		});
 	}
 
 	it('generation is deterministic', () => {
-		expect(generate({ ...(PRESETS['py-cli'] ?? {}), name: 'x' }).files).toEqual(generate({ ...(PRESETS['py-cli'] ?? {}), name: 'x' }).files);
+		expect(generate({ ...(PRESETS['py-cli'] ?? {}), name: 'x' }).files).toEqual(
+			generate({ ...(PRESETS['py-cli'] ?? {}), name: 'x' }).files,
+		);
 	});
 });

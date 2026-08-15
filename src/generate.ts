@@ -18,12 +18,21 @@ export function generate(
 	const mod = moduleName(dist);
 	const isCli = config.target === 'cli';
 	const isWorker = config.target === 'worker';
+	const isService = config.target === 'service';
 
 	const files: Record<string, string> = {
 		'pyproject.toml': pyprojectToml(config, dist, mod),
-		[`src/${mod}/__init__.py`]: isWorker ? workerInitPy(config, dist) : initPy(config, mod),
+		[`src/${mod}/__init__.py`]: isWorker
+			? workerInitPy(config, dist)
+			: isService
+				? serviceInitPy(config, dist)
+				: initPy(config, mod),
 		[`src/${mod}/py.typed`]: '',
-		[`tests/test_${mod}.py`]: isWorker ? workerTestPy(mod) : testPy(mod, isCli),
+		[`tests/test_${mod}.py`]: isWorker
+			? workerTestPy(mod)
+			: isService
+				? serviceTestPy(mod)
+				: testPy(mod, isCli),
 		'README.md': readme(config, dist),
 		'.gitignore': gitignore(),
 		'.python-version': `${config.pythonVersion}\n`,
@@ -34,6 +43,12 @@ export function generate(
 		files[`src/${mod}/worker.py`] = workerRunnerPy();
 		files[`src/${mod}/__main__.py`] = workerMainPy(mod);
 		files['Dockerfile'] = workerDockerfile(config, mod);
+		files['.dockerignore'] = workerDockerignore();
+	}
+	if (isService) {
+		files[`src/${mod}/app.py`] = serviceAppPy(dist);
+		files[`src/${mod}/__main__.py`] = serviceMainPy(mod);
+		files['Dockerfile'] = serviceDockerfile(config, mod);
 		files['.dockerignore'] = workerDockerignore();
 	}
 	if (config.license !== 'none')
@@ -85,7 +100,15 @@ function pyprojectToml(cfg: PyConfig, dist: string, mod: string): string {
 	const author = email
 		? `{ name = "${authorName(cfg.author)}", email = "${email}" }`
 		: `{ name = "${authorName(cfg.author)}" }`;
-	const dev = ['"pytest>=9"', '"ruff>=0.6"', ...(cfg.typecheck ? ['"mypy>=2"'] : [])];
+	const isService = cfg.target === 'service';
+	const runtimeDeps = isService ? ['"fastapi>=0.115"', '"uvicorn[standard]>=0.30"'] : [];
+	// FastAPI's TestClient needs httpx; keep it a dev dependency.
+	const dev = [
+		'"pytest>=9"',
+		'"ruff>=0.6"',
+		...(isService ? ['"httpx>=0.27"'] : []),
+		...(cfg.typecheck ? ['"mypy>=2"'] : []),
+	];
 
 	const lines = [
 		'[project]',
@@ -96,7 +119,7 @@ function pyprojectToml(cfg: PyConfig, dist: string, mod: string): string {
 		`requires-python = ">=${cfg.pythonVersion}"`,
 		...(cfg.license !== 'none' ? [`license = { text = "${cfg.license}" }`] : []),
 		`authors = [${author}]`,
-		'dependencies = []',
+		`dependencies = [${runtimeDeps.join(', ')}]`,
 		'',
 		'[project.optional-dependencies]',
 		`dev = [${dev.join(', ')}]`,
@@ -238,6 +261,24 @@ function readme(cfg: PyConfig, dist: string): string {
 					'',
 					'Config via env: `WORKER_MAX_ATTEMPTS` (retries before a message is routed to the',
 					'poison-message seam), `WORKER_LOG_LEVEL`.',
+					'',
+				]
+			: []),
+		...(cfg.target === 'service'
+			? [
+					'## Run',
+					'',
+					'A FastAPI HTTP service on uvicorn. It serves `/` and a `/healthz` liveness probe,',
+					'and binds `$PORT` (default 8000).',
+					'',
+					'```sh',
+					`uv run python -m ${moduleName(dist)}   # then: curl localhost:8000/healthz`,
+					'',
+					'# container',
+					`docker build -t ${dist} . && docker run --rm -p 8000:8000 ${dist}`,
+					'```',
+					'',
+					'Set `PORT` to change the listen port.',
 					'',
 				]
 			: []),
@@ -474,6 +515,106 @@ function workerDockerignore(): string {
 		'.mypy_cache/',
 		'.ruff_cache/',
 		'.git/',
+		'',
+	].join('\n');
+}
+
+function serviceInitPy(cfg: PyConfig, dist: string): string {
+	return [
+		`"""${cfg.description || `${dist} — an HTTP service.`}"""`,
+		'',
+		'__version__ = "0.1.0"',
+		'',
+	].join('\n');
+}
+
+// The FastAPI app object is the testable seam — exercised in-process with Starlette's
+// TestClient (no port, no running server). Add your routes here.
+function serviceAppPy(dist: string): string {
+	return [
+		'"""The FastAPI application — the testable seam. Add your routes here."""',
+		'',
+		'from fastapi import FastAPI',
+		'',
+		`app = FastAPI(title="${dist}")`,
+		'',
+		'',
+		'@app.get("/healthz")',
+		'def healthz() -> dict[str, str]:',
+		'    """Liveness probe — the deployment contract points its health check here."""',
+		'    return {"status": "ok"}',
+		'',
+		'',
+		'@app.get("/")',
+		'def root() -> dict[str, str]:',
+		'    return {"message": "Hello, world!"}',
+		'',
+	].join('\n');
+}
+
+// Entry point: `python -m <mod>` runs uvicorn on $PORT (default 8000). The deployment
+// contract's startCommand mirrors this; the Dockerfile CMD is the same.
+function serviceMainPy(mod: string): string {
+	return [
+		`"""Run the HTTP service: \`python -m ${mod}\` (uvicorn on $PORT)."""`,
+		'',
+		'import os',
+		'',
+		'import uvicorn',
+		'',
+		'',
+		'def main() -> None:',
+		`    uvicorn.run(`,
+		`        "${mod}.app:app",`,
+		'        host="0.0.0.0",',
+		'        port=int(os.environ.get("PORT", "8000")),',
+		'    )',
+		'',
+		'',
+		'if __name__ == "__main__":',
+		'    main()',
+		'',
+	].join('\n');
+}
+
+function serviceTestPy(mod: string): string {
+	return [
+		'from fastapi.testclient import TestClient',
+		'',
+		`from ${mod}.app import app`,
+		'',
+		'client = TestClient(app)',
+		'',
+		'',
+		'def test_healthz() -> None:',
+		'    resp = client.get("/healthz")',
+		'    assert resp.status_code == 200',
+		'    assert resp.json() == {"status": "ok"}',
+		'',
+		'',
+		'def test_root() -> None:',
+		'    resp = client.get("/")',
+		'    assert resp.status_code == 200',
+		'    assert "message" in resp.json()',
+		'',
+	].join('\n');
+}
+
+function serviceDockerfile(cfg: PyConfig, mod: string): string {
+	return [
+		'# Container image for the HTTP service. Listens on 8000 (override with PORT).',
+		`FROM python:${cfg.pythonVersion}-slim`,
+		'',
+		'WORKDIR /app',
+		'',
+		'COPY pyproject.toml README.md ./',
+		'COPY src ./src',
+		'RUN pip install --no-cache-dir .',
+		'',
+		'RUN useradd --create-home appuser',
+		'USER appuser',
+		'EXPOSE 8000',
+		`CMD ["python", "-m", "${mod}"]`,
 		'',
 	].join('\n');
 }
