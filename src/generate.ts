@@ -7,6 +7,7 @@ import { provenance } from './provenance.js';
 import { buildBaseline } from './baseline.js';
 import { deriveDeploymentContract } from './deployment.js';
 import { licenseText } from './license.js';
+import { scaffoldFiles } from './scaffold.js';
 
 /** Generate a Python project in memory. Deterministic: same config → same bytes. */
 export function generate(
@@ -53,6 +54,8 @@ export function generate(
 	}
 	if (config.license !== 'none')
 		files['LICENSE'] = licenseText(config.license, authorName(config.author));
+	// Checklist-parity capabilities (editorconfig, CI, dependabot, community, agent guide).
+	Object.assign(files, scaffoldFiles(config));
 	if (config.release === 'pypi')
 		files['.github/workflows/release.yml'] = pypiReleaseWorkflow(config);
 

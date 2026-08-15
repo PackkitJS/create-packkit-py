@@ -38,12 +38,13 @@ box** — the same guarantee `create-packkit` makes for JS/TS.
 --name <name>            Distribution name (or a positional, in either slot)
 --description <text>
 --author "<name> <email>"
---license <MIT|none>     (default: MIT)
+--license <MIT|Apache-2.0|ISC|none>   (default: MIT)
 --python <3.x>           Minimum Python version (default: 3.11)
 --target <library|cli|worker|service>
 --release <none|pypi>    PyPI Trusted-Publishing (OIDC) release workflow (default: none)
 --no-typecheck           Skip the mypy config + dev dependency
 --here                   Scaffold into the current directory
+--no-git                 Skip initializing a git repository
 --force                  Overwrite existing files
 ```
 

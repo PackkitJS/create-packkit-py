@@ -15,7 +15,7 @@ export function defaultConfig(): Omit<PyConfig, 'name'> {
 }
 
 const TARGETS: PyTarget[] = ['library', 'cli', 'worker', 'service'];
-const LICENSES: PyLicense[] = ['MIT', 'none'];
+const LICENSES: PyLicense[] = ['MIT', 'Apache-2.0', 'ISC', 'none'];
 const RELEASES: PyRelease[] = ['none', 'pypi'];
 
 /** Merge input over defaults and validate enum fields. Name is required. */

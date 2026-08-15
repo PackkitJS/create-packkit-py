@@ -89,6 +89,34 @@ describe('generate', () => {
 		);
 	});
 
+	// Completeness: every project carries the checklist `all`-scope capabilities, so Python
+	// is at parity with JS (see @packkit/core GENERATOR_CHECKLIST).
+	it('emits the checklist parity files (editorconfig, CI, dependabot, community, agent guide)', () => {
+		const files = Object.keys(generate({ name: 'demo' }).files);
+		for (const path of [
+			'.editorconfig',
+			'.github/workflows/ci.yml',
+			'.github/dependabot.yml',
+			'CONTRIBUTING.md',
+			'CODE_OF_CONDUCT.md',
+			'SECURITY.md',
+			'.github/ISSUE_TEMPLATE/bug_report.md',
+			'.github/ISSUE_TEMPLATE/feature_request.md',
+			'.github/PULL_REQUEST_TEMPLATE.md',
+			'AGENTS.md',
+			'CLAUDE.md',
+		]) {
+			expect(files, path).toContain(path);
+		}
+	});
+
+	it('supports Apache-2.0 and ISC licenses', () => {
+		expect(generate({ name: 'x', license: 'Apache-2.0' }).files['LICENSE']).toContain(
+			'Apache License',
+		);
+		expect(generate({ name: 'x', license: 'ISC' }).files['LICENSE']).toContain('ISC License');
+	});
+
 	// Regression for #21: a long --description must not push any generated Python line
 	// past ruff's line-length (100), or the scaffold fails its own `ruff check`.
 	it('keeps every generated Python line ≤ 100 chars even with a very long description', () => {

@@ -2,6 +2,90 @@
 
 exports[`characterization: preset output is byte-stable > py-cli matches its snapshot 1`] = `
 {
+  ".editorconfig": "root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{json,yml,yaml,toml,md}]
+indent_size = 2
+",
+  ".github/ISSUE_TEMPLATE/bug_report.md": "---
+name: Bug report
+about: Report a problem
+labels: bug
+---
+
+**Describe the bug**
+
+**To reproduce**
+
+**Expected behavior**
+
+**Environment**
+- Version:
+- Python:
+- OS:
+",
+  ".github/ISSUE_TEMPLATE/feature_request.md": "---
+name: Feature request
+about: Suggest an idea
+labels: enhancement
+---
+
+**Problem**
+
+**Proposed solution**
+
+**Alternatives considered**
+",
+  ".github/PULL_REQUEST_TEMPLATE.md": "## Summary
+
+<!-- What does this change and why? -->
+
+## Checklist
+
+- [ ] Tests pass
+- [ ] Lint & types pass
+- [ ] Docs updated if needed
+",
+  ".github/dependabot.yml": "version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+",
+  ".github/workflows/ci.yml": "name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install uv
+        run: pip install uv
+      - run: uv sync --all-extras
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy
+      - run: uv run pytest
+",
   ".gitignore": "__pycache__/
 *.py[cod]
 .venv/
@@ -16,9 +100,49 @@ build/
 ",
   ".python-version": "3.11
 ",
+  "AGENTS.md": "# Agent guide
+
+Commands for working in this project (managed with [uv](https://docs.astral.sh/uv/)):
+
+\`\`\`sh
+uv sync --all-extras   # install
+uv run pytest          # test
+uv run ruff check .    # lint
+uv run ruff format .   # format
+uv run mypy            # typecheck
+\`\`\`
+
+Keep changes minimal and idiomatic; make sure lint, types, and tests pass before
+opening a PR.
+",
+  "CLAUDE.md": "See [AGENTS.md](./AGENTS.md) for build/test commands and conventions.
+",
+  "CODE_OF_CONDUCT.md": "# Code of Conduct
+
+This project follows the [Contributor Covenant](https://www.contributor-covenant.org/version/2/1/code_of_conduct/).
+By participating, you are expected to uphold this code. Report unacceptable
+behavior to the maintainers.
+",
+  "CONTRIBUTING.md": "# Contributing
+
+Thanks for your interest in contributing!
+
+## Development
+
+\`\`\`sh
+uv sync --all-extras
+uv run pytest
+uv run ruff check .
+\`\`\`
+
+## Pull requests
+
+- Create a branch, make your change, and open a PR against \`main\`.
+- Make sure lint, types, and tests pass.
+",
   "LICENSE": "MIT License
 
-Copyright (c) Fixture Author
+Copyright (c) 2026 Fixture Author
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -57,6 +181,12 @@ uv run mypy
 uv run fixture world
 \`\`\`
 ",
+  "SECURITY.md": "# Security Policy
+
+If you discover a security vulnerability, please **do not** open a public issue.
+Instead, report it privately to the maintainers (e.g. via GitHub Security
+Advisories). We will respond as quickly as possible.
+",
   "packkit.json": "{
   "$schema": "https://packkitlabs.github.io/create-packkit-py/packkit.schema.json",
   "generator": "create-packkit-py",
@@ -69,17 +199,50 @@ uv run fixture world
   "baseline": {
     "schemaVersion": 1,
     "files": {
+      ".editorconfig": {
+        "hash": "036c2ea1b0d4f2"
+      },
+      ".github/ISSUE_TEMPLATE/bug_report.md": {
+        "hash": "0d43defd7b0f46"
+      },
+      ".github/ISSUE_TEMPLATE/feature_request.md": {
+        "hash": "19ef8d724b4866"
+      },
+      ".github/PULL_REQUEST_TEMPLATE.md": {
+        "hash": "174297edf0cebd"
+      },
+      ".github/dependabot.yml": {
+        "hash": "0946ca4b87bda6"
+      },
+      ".github/workflows/ci.yml": {
+        "hash": "06ffd8d4455823"
+      },
       ".gitignore": {
         "hash": "1fa3c30be8a662"
       },
       ".python-version": {
         "hash": "0b3856b0ad408a"
       },
+      "AGENTS.md": {
+        "hash": "003131853fb3a3"
+      },
+      "CLAUDE.md": {
+        "hash": "0a3e1dac8414fa"
+      },
+      "CODE_OF_CONDUCT.md": {
+        "hash": "11130d8e94d7e7"
+      },
+      "CONTRIBUTING.md": {
+        "hash": "1154e6212fb5e7"
+      },
       "LICENSE": {
-        "hash": "086c0b3374a5ed"
+        "hash": "109125ed486dba"
       },
       "README.md": {
         "hash": "00a66008afc525"
+      },
+      "SECURITY.md": {
+        "hash": "1fc69ca4db19fc"
       },
       "pyproject.toml": {
         "hash": "1556f954087d82"
@@ -200,6 +363,90 @@ def test_main_greets(capsys: pytest.CaptureFixture[str], monkeypatch: pytest.Mon
 
 exports[`characterization: preset output is byte-stable > py-lib matches its snapshot 1`] = `
 {
+  ".editorconfig": "root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{json,yml,yaml,toml,md}]
+indent_size = 2
+",
+  ".github/ISSUE_TEMPLATE/bug_report.md": "---
+name: Bug report
+about: Report a problem
+labels: bug
+---
+
+**Describe the bug**
+
+**To reproduce**
+
+**Expected behavior**
+
+**Environment**
+- Version:
+- Python:
+- OS:
+",
+  ".github/ISSUE_TEMPLATE/feature_request.md": "---
+name: Feature request
+about: Suggest an idea
+labels: enhancement
+---
+
+**Problem**
+
+**Proposed solution**
+
+**Alternatives considered**
+",
+  ".github/PULL_REQUEST_TEMPLATE.md": "## Summary
+
+<!-- What does this change and why? -->
+
+## Checklist
+
+- [ ] Tests pass
+- [ ] Lint & types pass
+- [ ] Docs updated if needed
+",
+  ".github/dependabot.yml": "version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+",
+  ".github/workflows/ci.yml": "name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install uv
+        run: pip install uv
+      - run: uv sync --all-extras
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy
+      - run: uv run pytest
+",
   ".gitignore": "__pycache__/
 *.py[cod]
 .venv/
@@ -214,9 +461,49 @@ build/
 ",
   ".python-version": "3.11
 ",
+  "AGENTS.md": "# Agent guide
+
+Commands for working in this project (managed with [uv](https://docs.astral.sh/uv/)):
+
+\`\`\`sh
+uv sync --all-extras   # install
+uv run pytest          # test
+uv run ruff check .    # lint
+uv run ruff format .   # format
+uv run mypy            # typecheck
+\`\`\`
+
+Keep changes minimal and idiomatic; make sure lint, types, and tests pass before
+opening a PR.
+",
+  "CLAUDE.md": "See [AGENTS.md](./AGENTS.md) for build/test commands and conventions.
+",
+  "CODE_OF_CONDUCT.md": "# Code of Conduct
+
+This project follows the [Contributor Covenant](https://www.contributor-covenant.org/version/2/1/code_of_conduct/).
+By participating, you are expected to uphold this code. Report unacceptable
+behavior to the maintainers.
+",
+  "CONTRIBUTING.md": "# Contributing
+
+Thanks for your interest in contributing!
+
+## Development
+
+\`\`\`sh
+uv sync --all-extras
+uv run pytest
+uv run ruff check .
+\`\`\`
+
+## Pull requests
+
+- Create a branch, make your change, and open a PR against \`main\`.
+- Make sure lint, types, and tests pass.
+",
   "LICENSE": "MIT License
 
-Copyright (c) Fixture Author
+Copyright (c) 2026 Fixture Author
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -249,6 +536,12 @@ uv run ruff check .
 uv run mypy
 \`\`\`
 ",
+  "SECURITY.md": "# Security Policy
+
+If you discover a security vulnerability, please **do not** open a public issue.
+Instead, report it privately to the maintainers (e.g. via GitHub Security
+Advisories). We will respond as quickly as possible.
+",
   "packkit.json": "{
   "$schema": "https://packkitlabs.github.io/create-packkit-py/packkit.schema.json",
   "generator": "create-packkit-py",
@@ -260,17 +553,50 @@ uv run mypy
   "baseline": {
     "schemaVersion": 1,
     "files": {
+      ".editorconfig": {
+        "hash": "036c2ea1b0d4f2"
+      },
+      ".github/ISSUE_TEMPLATE/bug_report.md": {
+        "hash": "0d43defd7b0f46"
+      },
+      ".github/ISSUE_TEMPLATE/feature_request.md": {
+        "hash": "19ef8d724b4866"
+      },
+      ".github/PULL_REQUEST_TEMPLATE.md": {
+        "hash": "174297edf0cebd"
+      },
+      ".github/dependabot.yml": {
+        "hash": "0946ca4b87bda6"
+      },
+      ".github/workflows/ci.yml": {
+        "hash": "06ffd8d4455823"
+      },
       ".gitignore": {
         "hash": "1fa3c30be8a662"
       },
       ".python-version": {
         "hash": "0b3856b0ad408a"
       },
+      "AGENTS.md": {
+        "hash": "003131853fb3a3"
+      },
+      "CLAUDE.md": {
+        "hash": "0a3e1dac8414fa"
+      },
+      "CODE_OF_CONDUCT.md": {
+        "hash": "11130d8e94d7e7"
+      },
+      "CONTRIBUTING.md": {
+        "hash": "1154e6212fb5e7"
+      },
       "LICENSE": {
-        "hash": "086c0b3374a5ed"
+        "hash": "109125ed486dba"
       },
       "README.md": {
         "hash": "00be63e7c17da2"
+      },
+      "SECURITY.md": {
+        "hash": "1fc69ca4db19fc"
       },
       "pyproject.toml": {
         "hash": "160a1638937801"
@@ -366,6 +692,90 @@ build/
 .ruff_cache/
 .git/
 ",
+  ".editorconfig": "root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{json,yml,yaml,toml,md}]
+indent_size = 2
+",
+  ".github/ISSUE_TEMPLATE/bug_report.md": "---
+name: Bug report
+about: Report a problem
+labels: bug
+---
+
+**Describe the bug**
+
+**To reproduce**
+
+**Expected behavior**
+
+**Environment**
+- Version:
+- Python:
+- OS:
+",
+  ".github/ISSUE_TEMPLATE/feature_request.md": "---
+name: Feature request
+about: Suggest an idea
+labels: enhancement
+---
+
+**Problem**
+
+**Proposed solution**
+
+**Alternatives considered**
+",
+  ".github/PULL_REQUEST_TEMPLATE.md": "## Summary
+
+<!-- What does this change and why? -->
+
+## Checklist
+
+- [ ] Tests pass
+- [ ] Lint & types pass
+- [ ] Docs updated if needed
+",
+  ".github/dependabot.yml": "version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+",
+  ".github/workflows/ci.yml": "name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install uv
+        run: pip install uv
+      - run: uv sync --all-extras
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy
+      - run: uv run pytest
+",
   ".gitignore": "__pycache__/
 *.py[cod]
 .venv/
@@ -379,6 +789,46 @@ build/
 .coverage
 ",
   ".python-version": "3.11
+",
+  "AGENTS.md": "# Agent guide
+
+Commands for working in this project (managed with [uv](https://docs.astral.sh/uv/)):
+
+\`\`\`sh
+uv sync --all-extras   # install
+uv run pytest          # test
+uv run ruff check .    # lint
+uv run ruff format .   # format
+uv run mypy            # typecheck
+\`\`\`
+
+Keep changes minimal and idiomatic; make sure lint, types, and tests pass before
+opening a PR.
+",
+  "CLAUDE.md": "See [AGENTS.md](./AGENTS.md) for build/test commands and conventions.
+",
+  "CODE_OF_CONDUCT.md": "# Code of Conduct
+
+This project follows the [Contributor Covenant](https://www.contributor-covenant.org/version/2/1/code_of_conduct/).
+By participating, you are expected to uphold this code. Report unacceptable
+behavior to the maintainers.
+",
+  "CONTRIBUTING.md": "# Contributing
+
+Thanks for your interest in contributing!
+
+## Development
+
+\`\`\`sh
+uv sync --all-extras
+uv run pytest
+uv run ruff check .
+\`\`\`
+
+## Pull requests
+
+- Create a branch, make your change, and open a PR against \`main\`.
+- Make sure lint, types, and tests pass.
 ",
   "Dockerfile": "# Container image for the HTTP service. Listens on 8000 (override with PORT).
 FROM python:3.11-slim
@@ -396,7 +846,7 @@ CMD ["python", "-m", "fixture"]
 ",
   "LICENSE": "MIT License
 
-Copyright (c) Fixture Author
+Copyright (c) 2026 Fixture Author
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -443,6 +893,12 @@ docker build -t fixture . && docker run --rm -p 8000:8000 fixture
 
 Set \`PORT\` to change the listen port.
 ",
+  "SECURITY.md": "# Security Policy
+
+If you discover a security vulnerability, please **do not** open a public issue.
+Instead, report it privately to the maintainers (e.g. via GitHub Security
+Advisories). We will respond as quickly as possible.
+",
   "packkit.json": "{
   "$schema": "https://packkitlabs.github.io/create-packkit-py/packkit.schema.json",
   "generator": "create-packkit-py",
@@ -458,20 +914,53 @@ Set \`PORT\` to change the listen port.
       ".dockerignore": {
         "hash": "1f8f17bbe8df87"
       },
+      ".editorconfig": {
+        "hash": "036c2ea1b0d4f2"
+      },
+      ".github/ISSUE_TEMPLATE/bug_report.md": {
+        "hash": "0d43defd7b0f46"
+      },
+      ".github/ISSUE_TEMPLATE/feature_request.md": {
+        "hash": "19ef8d724b4866"
+      },
+      ".github/PULL_REQUEST_TEMPLATE.md": {
+        "hash": "174297edf0cebd"
+      },
+      ".github/dependabot.yml": {
+        "hash": "0946ca4b87bda6"
+      },
+      ".github/workflows/ci.yml": {
+        "hash": "06ffd8d4455823"
+      },
       ".gitignore": {
         "hash": "1fa3c30be8a662"
       },
       ".python-version": {
         "hash": "0b3856b0ad408a"
       },
+      "AGENTS.md": {
+        "hash": "003131853fb3a3"
+      },
+      "CLAUDE.md": {
+        "hash": "0a3e1dac8414fa"
+      },
+      "CODE_OF_CONDUCT.md": {
+        "hash": "11130d8e94d7e7"
+      },
+      "CONTRIBUTING.md": {
+        "hash": "1154e6212fb5e7"
+      },
       "Dockerfile": {
         "hash": "1e7b794205a891"
       },
       "LICENSE": {
-        "hash": "086c0b3374a5ed"
+        "hash": "109125ed486dba"
       },
       "README.md": {
         "hash": "002f0fd7c78f8c"
+      },
+      "SECURITY.md": {
+        "hash": "1fc69ca4db19fc"
       },
       "pyproject.toml": {
         "hash": "0561c354c4ec86"
@@ -619,6 +1108,90 @@ build/
 .ruff_cache/
 .git/
 ",
+  ".editorconfig": "root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{json,yml,yaml,toml,md}]
+indent_size = 2
+",
+  ".github/ISSUE_TEMPLATE/bug_report.md": "---
+name: Bug report
+about: Report a problem
+labels: bug
+---
+
+**Describe the bug**
+
+**To reproduce**
+
+**Expected behavior**
+
+**Environment**
+- Version:
+- Python:
+- OS:
+",
+  ".github/ISSUE_TEMPLATE/feature_request.md": "---
+name: Feature request
+about: Suggest an idea
+labels: enhancement
+---
+
+**Problem**
+
+**Proposed solution**
+
+**Alternatives considered**
+",
+  ".github/PULL_REQUEST_TEMPLATE.md": "## Summary
+
+<!-- What does this change and why? -->
+
+## Checklist
+
+- [ ] Tests pass
+- [ ] Lint & types pass
+- [ ] Docs updated if needed
+",
+  ".github/dependabot.yml": "version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+",
+  ".github/workflows/ci.yml": "name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install uv
+        run: pip install uv
+      - run: uv sync --all-extras
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy
+      - run: uv run pytest
+",
   ".gitignore": "__pycache__/
 *.py[cod]
 .venv/
@@ -632,6 +1205,46 @@ build/
 .coverage
 ",
   ".python-version": "3.11
+",
+  "AGENTS.md": "# Agent guide
+
+Commands for working in this project (managed with [uv](https://docs.astral.sh/uv/)):
+
+\`\`\`sh
+uv sync --all-extras   # install
+uv run pytest          # test
+uv run ruff check .    # lint
+uv run ruff format .   # format
+uv run mypy            # typecheck
+\`\`\`
+
+Keep changes minimal and idiomatic; make sure lint, types, and tests pass before
+opening a PR.
+",
+  "CLAUDE.md": "See [AGENTS.md](./AGENTS.md) for build/test commands and conventions.
+",
+  "CODE_OF_CONDUCT.md": "# Code of Conduct
+
+This project follows the [Contributor Covenant](https://www.contributor-covenant.org/version/2/1/code_of_conduct/).
+By participating, you are expected to uphold this code. Report unacceptable
+behavior to the maintainers.
+",
+  "CONTRIBUTING.md": "# Contributing
+
+Thanks for your interest in contributing!
+
+## Development
+
+\`\`\`sh
+uv sync --all-extras
+uv run pytest
+uv run ruff check .
+\`\`\`
+
+## Pull requests
+
+- Create a branch, make your change, and open a PR against \`main\`.
+- Make sure lint, types, and tests pass.
 ",
   "Dockerfile": "# Container image for the worker. A worker is a long-running process, NOT an HTTP
 # server — so there is no EXPOSE and no HTTP HEALTHCHECK; liveness is the process.
@@ -651,7 +1264,7 @@ CMD ["python", "-m", "fixture"]
 ",
   "LICENSE": "MIT License
 
-Copyright (c) Fixture Author
+Copyright (c) 2026 Fixture Author
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -700,6 +1313,12 @@ docker build -t fixture . && docker run --rm -i fixture
 Config via env: \`WORKER_MAX_ATTEMPTS\` (retries before a message is routed to the
 poison-message seam), \`WORKER_LOG_LEVEL\`.
 ",
+  "SECURITY.md": "# Security Policy
+
+If you discover a security vulnerability, please **do not** open a public issue.
+Instead, report it privately to the maintainers (e.g. via GitHub Security
+Advisories). We will respond as quickly as possible.
+",
   "packkit.json": "{
   "$schema": "https://packkitlabs.github.io/create-packkit-py/packkit.schema.json",
   "generator": "create-packkit-py",
@@ -715,20 +1334,53 @@ poison-message seam), \`WORKER_LOG_LEVEL\`.
       ".dockerignore": {
         "hash": "1f8f17bbe8df87"
       },
+      ".editorconfig": {
+        "hash": "036c2ea1b0d4f2"
+      },
+      ".github/ISSUE_TEMPLATE/bug_report.md": {
+        "hash": "0d43defd7b0f46"
+      },
+      ".github/ISSUE_TEMPLATE/feature_request.md": {
+        "hash": "19ef8d724b4866"
+      },
+      ".github/PULL_REQUEST_TEMPLATE.md": {
+        "hash": "174297edf0cebd"
+      },
+      ".github/dependabot.yml": {
+        "hash": "0946ca4b87bda6"
+      },
+      ".github/workflows/ci.yml": {
+        "hash": "06ffd8d4455823"
+      },
       ".gitignore": {
         "hash": "1fa3c30be8a662"
       },
       ".python-version": {
         "hash": "0b3856b0ad408a"
       },
+      "AGENTS.md": {
+        "hash": "003131853fb3a3"
+      },
+      "CLAUDE.md": {
+        "hash": "0a3e1dac8414fa"
+      },
+      "CODE_OF_CONDUCT.md": {
+        "hash": "11130d8e94d7e7"
+      },
+      "CONTRIBUTING.md": {
+        "hash": "1154e6212fb5e7"
+      },
       "Dockerfile": {
         "hash": "1604375caee744"
       },
       "LICENSE": {
-        "hash": "086c0b3374a5ed"
+        "hash": "109125ed486dba"
       },
       "README.md": {
         "hash": "1bf1fb90c91c57"
+      },
+      "SECURITY.md": {
+        "hash": "1fc69ca4db19fc"
       },
       "pyproject.toml": {
         "hash": "160a1638937801"

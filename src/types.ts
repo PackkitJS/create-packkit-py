@@ -5,7 +5,7 @@
 import type { Diagnostic, GeneratedProjectMetadata, DeploymentContract } from '@packkit/core';
 
 export type PyTarget = 'library' | 'cli' | 'worker' | 'service';
-export type PyLicense = 'MIT' | 'none';
+export type PyLicense = 'MIT' | 'Apache-2.0' | 'ISC' | 'none';
 /** Release automation. `pypi` = a PyPI Trusted-Publishing (OIDC) release workflow. */
 export type PyRelease = 'none' | 'pypi';
 
