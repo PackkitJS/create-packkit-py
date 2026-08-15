@@ -88,4 +88,21 @@ describe('generate', () => {
 			/Unknown release "bogus"/,
 		);
 	});
+
+	// Regression for #21: a long --description must not push any generated Python line
+	// past ruff's line-length (100), or the scaffold fails its own `ruff check`.
+	it('keeps every generated Python line ≤ 100 chars even with a very long description', () => {
+		const description =
+			'A delightfully thorough and rather verbose description that runs well past one ' +
+			'hundred characters so the module docstring and the argparse description both have ' +
+			'to wrap instead of overflowing.';
+		for (const target of ['library', 'cli', 'worker', 'service'] as const) {
+			const { files } = generate({ name: 'demo', target, description });
+			for (const [path, body] of Object.entries(files)) {
+				if (!path.endsWith('.py')) continue;
+				const tooLong = body.split('\n').filter((l) => l.length > 100);
+				expect(tooLong, `${target} ${path} has lines > 100`).toEqual([]);
+			}
+		}
+	});
 });

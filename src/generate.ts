@@ -94,6 +94,33 @@ function authorEmail(author: string): string | undefined {
 	return author.match(/<([^>]+)>/)?.[1];
 }
 
+// --- line-length helpers ----------------------------------------------------
+// Generated Python must pass its own `ruff check` (line-length 100) regardless of how
+// long a user's --description is. A lone word longer than `width` (e.g. a URL) stays on
+// its own line — realistic prose wraps cleanly.
+function wrapText(text: string, width: number): string[] {
+	const lines: string[] = [];
+	let line = '';
+	for (const word of text.split(/\s+/).filter(Boolean)) {
+		if (!line) line = word;
+		else if (`${line} ${word}`.length <= width) line += ` ${word}`;
+		else {
+			lines.push(line);
+			line = word;
+		}
+	}
+	if (line) lines.push(line);
+	return lines.length ? lines : [''];
+}
+
+// A module docstring that never trips E501: one line when it fits, else a wrapped
+// triple-quoted block. (No pydocstyle rules are enabled, so multi-line is fine.)
+function moduleDocstring(text: string): string {
+	const single = `"""${text}"""`;
+	if (single.length <= 100) return single;
+	return ['"""', ...wrapText(text, 100), '"""'].join('\n');
+}
+
 // --- file templates ---------------------------------------------------------
 
 function pyprojectToml(cfg: PyConfig, dist: string, mod: string): string {
@@ -163,7 +190,7 @@ function pyprojectToml(cfg: PyConfig, dist: string, mod: string): string {
 
 function initPy(cfg: PyConfig, mod: string): string {
 	return [
-		`"""${cfg.description || dist_title(mod)}"""`,
+		moduleDocstring(cfg.description || dist_title(mod)),
 		'',
 		'__version__ = "0.1.0"',
 		'',
@@ -185,7 +212,7 @@ function mainPy(cfg: PyConfig, dist: string, mod: string): string {
 		'',
 		'',
 		'def main() -> None:',
-		`    parser = argparse.ArgumentParser(prog="${dist}", description=${JSON.stringify(cfg.description || dist)})`,
+		...argparseLines(dist, cfg.description || dist),
 		'    parser.add_argument("name", nargs="?", default="world", help="who to greet")',
 		'    args = parser.parse_args()',
 		'    print(greet(args.name))',
@@ -195,6 +222,25 @@ function mainPy(cfg: PyConfig, dist: string, mod: string): string {
 		'    main()',
 		'',
 	].join('\n');
+}
+
+// The argparse call — one line when it fits, else wrapped with the description as
+// implicit string concatenation so a long --description never overflows line-length 100.
+function argparseLines(dist: string, desc: string): string[] {
+	const inline = `    parser = argparse.ArgumentParser(prog="${dist}", description=${JSON.stringify(desc)})`;
+	if (inline.length <= 100) return [inline];
+	const frags = wrapText(desc, 80);
+	const quoted = frags.map(
+		(frag, i) => `            ${JSON.stringify(i < frags.length - 1 ? `${frag} ` : frag)}`,
+	);
+	return [
+		'    parser = argparse.ArgumentParser(',
+		`        prog="${dist}",`,
+		'        description=(',
+		...quoted,
+		'        ),',
+		'    )',
+	];
 }
 
 function testPy(mod: string, isCli: boolean): string {
@@ -349,7 +395,7 @@ function pypiReleaseWorkflow(cfg: PyConfig): string {
 
 function workerInitPy(cfg: PyConfig, dist: string): string {
 	return [
-		`"""${cfg.description || `${dist} — a background worker.`}"""`,
+		moduleDocstring(cfg.description || `${dist} — a background worker.`),
 		'',
 		'__version__ = "0.1.0"',
 		'',
@@ -581,7 +627,7 @@ function workerDockerignore(): string {
 
 function serviceInitPy(cfg: PyConfig, dist: string): string {
 	return [
-		`"""${cfg.description || `${dist} — an HTTP service.`}"""`,
+		moduleDocstring(cfg.description || `${dist} — an HTTP service.`),
 		'',
 		'__version__ = "0.1.0"',
 		'',
