@@ -53,6 +53,8 @@ export function generate(
 	}
 	if (config.license !== 'none')
 		files['LICENSE'] = licenseText(config.license, authorName(config.author));
+	if (config.release === 'pypi')
+		files['.github/workflows/release.yml'] = pypiReleaseWorkflow(config);
 
 	const baseline = buildBaseline(files);
 	files['packkit.json'] = provenance(config, {
@@ -282,6 +284,64 @@ function readme(cfg: PyConfig, dist: string): string {
 					'',
 				]
 			: []),
+		...(cfg.release === 'pypi'
+			? [
+					'## Release',
+					'',
+					'Publishing uses PyPI **Trusted Publishing** (OIDC — no API tokens). One-time',
+					'setup: on PyPI, add a Trusted Publisher for this project pointing at this repo,',
+					'workflow `release.yml`, environment `pypi`',
+					'(<https://docs.pypi.org/trusted-publishers/>). Then, to cut a release:',
+					'',
+					'```sh',
+					'# bump `version` in pyproject.toml, then tag and push:',
+					'git tag v0.1.0 && git push origin v0.1.0',
+					'```',
+					'',
+					'The Release workflow builds an sdist + wheel and publishes them to PyPI.',
+					'',
+				]
+			: []),
+	].join('\n');
+}
+
+// PyPI publish on a version tag via Trusted Publishing (OIDC) — no API token in the
+// repo. Uses setup-python + `python -m build` + the official PyPA publish action: the
+// canonical, tool-agnostic flow (works regardless of uv/pip). Emitted into the user's
+// project, so refs use readable moving tags, not SHAs.
+function pypiReleaseWorkflow(cfg: PyConfig): string {
+	return [
+		'name: Release',
+		'',
+		'# Publish to PyPI on a version tag, using OIDC Trusted Publishing (no API token).',
+		'# One-time setup: add a Trusted Publisher for this project on PyPI pointing at this',
+		'# repo, this workflow (release.yml), and the `pypi` environment. Then bump `version`',
+		'# in pyproject.toml, tag `vX.Y.Z`, and push the tag.',
+		'on:',
+		'  push:',
+		"    tags: ['v*']",
+		'',
+		'permissions:',
+		'  contents: read',
+		'',
+		'jobs:',
+		'  pypi-publish:',
+		'    runs-on: ubuntu-latest',
+		'    environment: pypi',
+		'    permissions:',
+		'      id-token: write # OIDC token for Trusted Publishing',
+		'    steps:',
+		'      - uses: actions/checkout@v4',
+		'      - uses: actions/setup-python@v5',
+		'        with:',
+		`          python-version: '${cfg.pythonVersion}'`,
+		'      - name: Build sdist and wheel',
+		'        run: |',
+		'          python -m pip install --upgrade build',
+		'          python -m build',
+		'      - name: Publish to PyPI',
+		'        uses: pypa/gh-action-pypi-publish@release/v1',
+		'',
 	].join('\n');
 }
 

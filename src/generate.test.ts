@@ -65,4 +65,27 @@ describe('generate', () => {
 			/not a valid Python distribution name/,
 		);
 	});
+
+	it('omits the release workflow by default', () => {
+		expect(Object.keys(generate({ name: 'x' }).files)).not.toContain(
+			'.github/workflows/release.yml',
+		);
+	});
+
+	it('release=pypi emits a Trusted-Publishing workflow (OIDC, no token) + README section', () => {
+		const project = generate({ name: 'my-lib', release: 'pypi', pythonVersion: '3.12' });
+		const wf = project.files['.github/workflows/release.yml'] ?? '';
+		expect(wf).toContain('id-token: write');
+		expect(wf).toContain('pypa/gh-action-pypi-publish@release/v1');
+		expect(wf).toContain("python-version: '3.12'"); // threads the resolved pythonVersion floor
+		expect(wf).not.toMatch(/NPM_TOKEN|PYPI_TOKEN|password/i);
+		expect(project.files['README.md']).toContain('## Release');
+		expect(project.files['README.md']).toContain('Trusted Publishing');
+	});
+
+	it('rejects an invalid release option', () => {
+		expect(() => generate({ name: 'x', release: 'bogus' } as never)).toThrowError(
+			/Unknown release "bogus"/,
+		);
+	});
 });

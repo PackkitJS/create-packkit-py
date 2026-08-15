@@ -58,6 +58,34 @@ async function integrate(preset) {
 		sh('uv', ['run', 'ruff', 'check', '.'], project);
 		sh('uv', ['run', 'mypy'], project); // typecheck is on by default for both presets
 
+		// 3b. The release feature is orthogonal to the toolchain, so exercise it once
+		// (on py-lib): re-scaffold with --release=pypi and assert the emitted workflow
+		// is present and valid YAML — a broken CI file only surfaces on GitHub otherwise.
+		if (preset === 'py-lib') {
+			const relName = `${name}-rel`;
+			sh(process.execPath, [CLI, preset, relName, '--release', 'pypi'], workdir);
+			const relProject = join(workdir, relName);
+			execFileSync(
+				'uv',
+				[
+					'run',
+					'--with',
+					'pyyaml',
+					'python',
+					'-c',
+					[
+						'import yaml,sys',
+						"d=yaml.safe_load(open('.github/workflows/release.yml'))",
+						"assert 'pypi-publish' in d['jobs'], 'missing pypi-publish job'",
+						"perms=d['jobs']['pypi-publish']['permissions']",
+						"assert perms.get('id-token')=='write', 'OIDC id-token not requested'",
+						"print('  ✓ release.yml is valid YAML with an OIDC pypi-publish job')",
+					].join('; '),
+				],
+				{ cwd: relProject, stdio: 'inherit' },
+			);
+		}
+
 		// 4. For a CLI, the console script must actually run and greet.
 		if (preset === 'py-cli') {
 			const out = execFileSync('uv', ['run', name, 'there'], { cwd: project, encoding: 'utf8' });

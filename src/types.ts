@@ -6,6 +6,8 @@ import type { Diagnostic, GeneratedProjectMetadata, DeploymentContract } from '@
 
 export type PyTarget = 'library' | 'cli' | 'worker' | 'service';
 export type PyLicense = 'MIT' | 'none';
+/** Release automation. `pypi` = a PyPI Trusted-Publishing (OIDC) release workflow. */
+export type PyRelease = 'none' | 'pypi';
 
 /** Resolved configuration for one generated Python project. */
 export interface PyConfig {
@@ -19,6 +21,8 @@ export interface PyConfig {
 	pythonVersion: string;
 	/** Add mypy (strict) config + a dev dependency. */
 	typecheck: boolean;
+	/** Release automation to scaffold (`none`, or a PyPI Trusted-Publishing workflow). */
+	release: PyRelease;
 }
 
 export type PyConfigInput = Partial<PyConfig> & { name?: string };

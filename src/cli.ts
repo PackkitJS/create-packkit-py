@@ -39,6 +39,7 @@ Options:
   --license <MIT|none>   (default: MIT)
   --python <3.x>         Minimum Python version (default: 3.11)
   --target <library|cli>
+  --release <none|pypi>  PyPI Trusted-Publishing release workflow (default: none)
   --no-typecheck         Skip mypy config + dev dependency
   --here                 Scaffold into the current directory
   --force                Overwrite existing files
@@ -55,6 +56,7 @@ function run(argv: string[]): void {
 			license: { type: 'string' },
 			python: { type: 'string' },
 			target: { type: 'string' },
+			release: { type: 'string' },
 			'no-typecheck': { type: 'boolean' },
 			here: { type: 'boolean' },
 			force: { type: 'boolean' },
@@ -93,6 +95,7 @@ function run(argv: string[]): void {
 		...(values.license != null ? { license: values.license as PyConfigInput['license'] } : {}),
 		...(values.python != null ? { pythonVersion: values.python } : {}),
 		...(values.target != null ? { target: values.target as PyConfigInput['target'] } : {}),
+		...(values.release != null ? { release: values.release as PyConfigInput['release'] } : {}),
 		...(values['no-typecheck'] ? { typecheck: false } : {}),
 	};
 

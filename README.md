@@ -40,7 +40,8 @@ box** — the same guarantee `create-packkit` makes for JS/TS.
 --author "<name> <email>"
 --license <MIT|none>     (default: MIT)
 --python <3.x>           Minimum Python version (default: 3.11)
---target <library|cli>
+--target <library|cli|worker|service>
+--release <none|pypi>    PyPI Trusted-Publishing (OIDC) release workflow (default: none)
 --no-typecheck           Skip the mypy config + dev dependency
 --here                   Scaffold into the current directory
 --force                  Overwrite existing files

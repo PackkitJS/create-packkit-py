@@ -1,4 +1,4 @@
-import type { PyConfig, PyConfigInput, PyLicense, PyTarget } from './types.js';
+import type { PyConfig, PyConfigInput, PyLicense, PyRelease, PyTarget } from './types.js';
 import { PackkitPyError } from './errors.js';
 
 /** Baseline config — every field an explicit, documented default. */
@@ -10,11 +10,13 @@ export function defaultConfig(): Omit<PyConfig, 'name'> {
 		target: 'library',
 		pythonVersion: '3.11',
 		typecheck: true,
+		release: 'none',
 	};
 }
 
 const TARGETS: PyTarget[] = ['library', 'cli', 'worker', 'service'];
 const LICENSES: PyLicense[] = ['MIT', 'none'];
+const RELEASES: PyRelease[] = ['none', 'pypi'];
 
 /** Merge input over defaults and validate enum fields. Name is required. */
 export function normalizeConfig(input: PyConfigInput): PyConfig {
@@ -41,6 +43,14 @@ export function normalizeConfig(input: PyConfigInput): PyConfig {
 				`Unknown license "${input.license}". Expected one of: ${LICENSES.join(', ')}.`,
 			);
 		cfg.license = input.license;
+	}
+	if (input.release != null) {
+		if (!RELEASES.includes(input.release))
+			throw new PackkitPyError(
+				'INVALID_RELEASE',
+				`Unknown release "${input.release}". Expected one of: ${RELEASES.join(', ')}.`,
+			);
+		cfg.release = input.release;
 	}
 	if (!/^3\.\d{1,2}$/.test(cfg.pythonVersion)) {
 		throw new PackkitPyError(
