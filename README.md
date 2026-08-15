@@ -1,6 +1,6 @@
 # create-packkit-py 🐍📦
 
-> Scaffold a modern **Python** project — `pyproject.toml`/uv, ruff, pytest, `src/` layout — from a CLI (and soon the browser). [Packkit](https://github.com/PackkitLabs/create-packkit)'s Python sibling.
+> Scaffold a modern **Python** project — `pyproject.toml`/uv, ruff, pytest, `src/` layout — from a CLI (and soon the browser). [Packkit](https://github.com/PackkitLabs/create-packkit-js)'s Python sibling.
 
 [![npm](https://img.shields.io/npm/v/create-packkit-py.svg)](https://www.npmjs.com/package/create-packkit-py) [![CI](https://github.com/PackkitLabs/create-packkit-py/actions/workflows/ci.yml/badge.svg)](https://github.com/PackkitLabs/create-packkit-py/actions/workflows/ci.yml) [![Configure on the web](https://img.shields.io/badge/⚙_configure-on_the_web-00e5ff)](https://packkit-web.pages.dev/?g=python) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
